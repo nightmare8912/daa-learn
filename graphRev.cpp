@@ -34,6 +34,7 @@ class queue
             for (temp = head; temp->quNext != NULL; temp = temp->quNext);
             temp->quNext = vert;
         } 
+        vert->isProcessed = true;
         count++;   
     }
     // deletes and returns the first vertex from the queue
@@ -47,6 +48,48 @@ class queue
         return temp;
     }
     // returns true if queue is empty, otheriwise false
+    bool isEmpty()
+    {
+        if (head == NULL)
+            return true;
+        return false;    
+    }
+
+};
+class stack
+{
+    public:
+    vertex *head;
+    int count;
+    stack()
+    {
+        head = NULL;
+        count = 0;
+    }
+    // adds the vertex in the stack
+    void push(vertex *vert)
+    {
+        if (head == NULL)
+            head = vert;
+        else
+        {
+            vert->quNext = head;
+            head = vert;
+        } 
+        vert->isProcessed = true;
+        count++;   
+    }
+    // deletes and returns the first vertex from the stack
+    vertex *pop()
+    {
+        if (head == NULL)
+            return NULL;
+        vertex *temp = head;
+        head = head->quNext;
+        count--;
+        return temp;
+    }
+    // returns true if stack is empty, otheriwise false
     bool isEmpty()
     {
         if (head == NULL)
@@ -197,17 +240,13 @@ class graph
         bfs_start: 
         queue q;   
         q.enqueue(reference);
-        reference->isProcessed = true;
         while(!q.isEmpty())
         {
             vertex *currVertex = q.dequeue();
             for (edge *edg = currVertex->firstEdge; edg != NULL; edg = edg->nextEdge)
             {
                 if (edg->end->isProcessed == false)
-                {
-                    q.enqueue(edg->end);
-                    edg->end->isProcessed = true;
-                }    
+                    q.enqueue(edg->end);   
             }
             cout << currVertex->data << " ";
         }
@@ -215,6 +254,65 @@ class graph
         if(reference != NULL)
             goto bfs_start;           
         cout << endl;
+    }
+
+    bool isEnd(vertex *vert)
+    {
+        for (edge *edg = vert->firstEdge; edg != NULL; edg = edg->nextEdge)
+        {
+            if (edg->end->isProcessed == false)
+                return false;
+        }
+        return true;
+    }
+
+    void dfs()
+    {
+        if (firstVertex == NULL)
+        {
+            cout << "No vertices present inside the graph!" << endl;
+            return;
+        }
+        for (vertex *temp = firstVertex; temp != NULL; temp = temp->nextVertex)
+        {
+            temp->isProcessed = false;
+            temp->quNext = NULL;
+        }
+        stack s;
+        vertex *currVertex = firstVertex;
+        back_track:
+        if (currVertex->isProcessed == false)
+        {
+            s.push(currVertex);
+            cout << currVertex->data << " ";
+        }  
+        while(!isEnd(currVertex))
+        {
+            for(edge *edg = currVertex->firstEdge; edg != NULL; edg = edg->nextEdge)
+            {
+                if (edg->end->isProcessed == false)
+                {
+                    currVertex = edg->end;
+                    break;
+                }
+            }
+            if (currVertex ->isProcessed == false)
+            {
+                s.push(currVertex);
+                cout << currVertex->data << " ";
+            }
+        }
+
+        if(!s.isEmpty())
+        {
+            currVertex = s.pop();
+            goto back_track;
+        } 
+
+        currVertex = findUnprocessedVertex();
+        if(currVertex != NULL)
+            goto back_track;            
+        cout << endl;     
     }
 
     void normalPrint()
@@ -230,9 +328,9 @@ int main()
     char data;
     char vertex1, vertex2;
     graph g;
-    while(opt != 6)
+    while(opt != 7)
     {
-        cout << "1-Insert vertex, 2-Insert Edge, 3-Normal Traversal, 4-BFS, 5-Print Vertices with edges, 6-Exit: ";
+        cout << "1-Insert vertex, 2-Insert Edge, 3-Normal Traversal, 4-BFS, 5-DFS, 6-Print Vertices with edges, 7-Exit: ";
         cin >> opt;
         switch(opt)
         {
@@ -247,10 +345,12 @@ int main()
             case 3: g.normalPrint();
                     break;
             case 4: g.bfs();
+                    break; 
+            case 5: g.dfs();
+                    break;               
+            case 6: g.printVertexWithEdges();
                     break;        
-            case 5: g.printVertexWithEdges();
-                    break;        
-            case 6: cout << "Exited" << endl;
+            case 7: cout << "Exited" << endl;
                     break;
             default:cout << "Invalid option" << endl;
                     break;                             

@@ -23,7 +23,7 @@ class queue
         head = NULL;
         count = 0;
     }
-
+    // adds the vertex in the queue
     void enqueue(vertex *vert)
     {
         if (head == NULL)
@@ -36,23 +36,24 @@ class queue
         } 
         count++;   
     }
-
+    // deletes and returns the first vertex from the queue
     vertex *dequeue()
     {
         if (head == NULL)
             return NULL;
         vertex *temp = head;
         head = head->quNext;
-        return temp;
         count--;
+        return temp;
     }
-
+    // returns true if queue is empty, otheriwise false
     bool isEmpty()
     {
         if (head == NULL)
             return true;
         return false;    
     }
+
 };
 class graph
 {
@@ -63,7 +64,7 @@ class graph
     {
         firstVertex = NULL;
     }
-
+    //creates and returns a vertex
     vertex *createVertex(char data)
     {
         vertex *vert = new vertex;
@@ -72,7 +73,7 @@ class graph
         vert->firstEdge = NULL;
         return vert;
     }
-
+    // checks if the given vertex is already present in the queue or not, return true if present, otherwise false
     bool isPresent(vertex *vert)
     {
         for(vertex *temp = firstVertex; temp != NULL; temp = temp->nextVertex)
@@ -82,7 +83,7 @@ class graph
         }
         return false;
     }
-
+    // inserts the vertex in the queue after checking if it is present or not
     void insertVertex(vertex *vert)
     {
         if (isPresent(vert))
@@ -101,7 +102,7 @@ class graph
         }
         cout << "Vertex inserted successfully!" << endl;    
     }
-
+    // finds the vertex with corresponding data values and returns it, returns NULL if not found
     vertex *findVertex(char vert)
     {
         for(vertex *temp = firstVertex; temp != NULL; temp = temp->nextVertex)
@@ -111,7 +112,7 @@ class graph
         }
         return NULL;
     }
-
+    // creates the edge with given source and destination vertices
     edge *createEdge(vertex *vert1, vertex *vert2)
     {
         edge *edg = new edge;
@@ -120,7 +121,7 @@ class graph
         edg->nextEdge = NULL;
         return edg;
     }
-
+    // adds the edge to the vertex's edge list
     void addEdge(vertex *vert, edge *edg)
     {
         if (vert->firstEdge == NULL)
@@ -132,7 +133,7 @@ class graph
             temp->nextEdge = edg;
         }
     }
-
+    // checks if vertices are present, if they are, then it creates and adds the edges to both the vertices
     void insertEdge(char vertex1, char vertex2)
     {
         vertex *vert1, *vert2;
@@ -148,7 +149,6 @@ class graph
             cout << vertex2 << " was not found in the graph" << endl;
             return;
         }
-
         edge *edg1, *edg2;
         edg1 = createEdge(vert1, vert2);
         addEdge(vert1, edg1);
@@ -156,15 +156,13 @@ class graph
         addEdge(vert2, edg2);
         cout << "Edge has been inserted successfully between " << vertex1 << " and " << vertex2 << endl;
     }
-
+    // print vertices along with the vertices they're connected with
     void printVertexWithEdges()
     {
         for (vertex *vert = firstVertex; vert != NULL; vert = vert->nextVertex)
         {
-            cout << vert->data << "---->";
-            if (vert->firstEdge == NULL)
-                cout << endl;
-            else
+            cout << vert->data << " ----> ";
+            if (vert->firstEdge != NULL)
             {
                 for(edge *edg = vert->firstEdge; edg != NULL; edg = edg->nextEdge)
                     cout << edg->end->data << ", ";
@@ -172,7 +170,7 @@ class graph
             cout << endl;
         }
     }
-
+    // returns the unprocessed vertices after BFS
     vertex *findUnprocessedVertex()
     {
         for (vertex *temp = firstVertex; temp != NULL; temp = temp->nextVertex)
@@ -182,7 +180,7 @@ class graph
         }
         return NULL;
     }
-
+    // performs bfs
     void bfs()
     {
         if (firstVertex == NULL)
@@ -190,26 +188,24 @@ class graph
             cout << "No vertices present inside the graph!" << endl;
             return;
         }
-        queue q;
         vertex *reference = firstVertex;
-        // cout << "hi";
         for (vertex *temp = firstVertex; temp != NULL; temp = temp->nextVertex)
+        {
             temp->isProcessed = false;
-
-        bfs_start:    
+            temp->quNext = NULL;
+        }
+        bfs_start: 
+        queue q;   
         q.enqueue(reference);
         reference->isProcessed = true;
         while(!q.isEmpty())
         {
             vertex *currVertex = q.dequeue();
-            // cout << endl <<"hi" << endl;
-            // cout << currVertex->data << endl;
             for (edge *edg = currVertex->firstEdge; edg != NULL; edg = edg->nextEdge)
             {
                 if (edg->end->isProcessed == false)
                 {
                     q.enqueue(edg->end);
-                    // cout << edg->end->data << " has been inserted in queue" << endl;
                     edg->end->isProcessed = true;
                 }    
             }
@@ -217,7 +213,7 @@ class graph
         }
         reference = findUnprocessedVertex();
         if(reference != NULL)
-            goto bfs_start;    
+            goto bfs_start;           
         cout << endl;
     }
 

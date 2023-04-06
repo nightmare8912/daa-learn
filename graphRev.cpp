@@ -15,7 +15,7 @@ struct edge
 };
 class queue
 {
-    public:
+public:
     vertex *head;
     int count;
     queue()
@@ -31,11 +31,12 @@ class queue
         else
         {
             vertex *temp;
-            for (temp = head; temp->quNext != NULL; temp = temp->quNext);
+            for (temp = head; temp->quNext != NULL; temp = temp->quNext)
+                ;
             temp->quNext = vert;
-        } 
+        }
         vert->isProcessed = true;
-        count++;   
+        count++;
     }
     // deletes and returns the first vertex from the queue
     vertex *dequeue()
@@ -47,18 +48,17 @@ class queue
         count--;
         return temp;
     }
-    // returns true if queue is empty, otheriwise false
+    // returns true if queue is empty, otherwise false
     bool isEmpty()
     {
         if (head == NULL)
             return true;
-        return false;    
+        return false;
     }
-
 };
 class stack
 {
-    public:
+public:
     vertex *head;
     int count;
     stack()
@@ -75,9 +75,9 @@ class stack
         {
             vert->quNext = head;
             head = vert;
-        } 
+        }
         vert->isProcessed = true;
-        count++;   
+        count++;
     }
     // deletes and returns the first vertex from the stack
     vertex *pop()
@@ -94,20 +94,19 @@ class stack
     {
         if (head == NULL)
             return true;
-        return false;    
+        return false;
     }
-
 };
 class graph
 {
-    public:
+public:
     vertex *firstVertex;
-    
+
     graph()
     {
         firstVertex = NULL;
     }
-    //creates and returns a vertex
+    // creates and returns a vertex
     vertex *createVertex(char data)
     {
         vertex *vert = new vertex;
@@ -116,10 +115,10 @@ class graph
         vert->firstEdge = NULL;
         return vert;
     }
-    // checks if the given vertex is already present in the queue or not, return true if present, otherwise false
+    // checks if the given vertex is already present in the graph or not, return true if present, otherwise false
     bool isPresent(vertex *vert)
     {
-        for(vertex *temp = firstVertex; temp != NULL; temp = temp->nextVertex)
+        for (vertex *temp = firstVertex; temp != NULL; temp = temp->nextVertex)
         {
             if (temp->data == vert->data)
                 return true;
@@ -140,15 +139,16 @@ class graph
         else
         {
             vertex *temp;
-            for (temp = firstVertex; temp->nextVertex != NULL; temp = temp->nextVertex);
+            for (temp = firstVertex; temp->nextVertex != NULL; temp = temp->nextVertex)
+                ;
             temp->nextVertex = vert;
         }
-        cout << "Vertex inserted successfully!" << endl;    
+        cout << "Vertex inserted successfully!" << endl;
     }
     // finds the vertex with corresponding data values and returns it, returns NULL if not found
     vertex *findVertex(char vert)
     {
-        for(vertex *temp = firstVertex; temp != NULL; temp = temp->nextVertex)
+        for (vertex *temp = firstVertex; temp != NULL; temp = temp->nextVertex)
         {
             if (temp->data == vert)
                 return temp;
@@ -160,7 +160,7 @@ class graph
     {
         edge *edg = new edge;
         edg->start = vert1;
-        edg->end = vert2; 
+        edg->end = vert2;
         edg->nextEdge = NULL;
         return edg;
     }
@@ -172,7 +172,8 @@ class graph
         else
         {
             edge *temp;
-            for (temp = vert->firstEdge; temp->nextEdge != NULL; temp = temp->nextEdge);
+            for (temp = vert->firstEdge; temp->nextEdge != NULL; temp = temp->nextEdge)
+                ;
             temp->nextEdge = edg;
         }
     }
@@ -180,7 +181,7 @@ class graph
     void insertEdge(char vertex1, char vertex2)
     {
         vertex *vert1, *vert2;
-        vert1 = findVertex(vertex1); 
+        vert1 = findVertex(vertex1);
         if (vert1 == NULL)
         {
             cout << vertex1 << " was not found in the graph" << endl;
@@ -199,21 +200,18 @@ class graph
         addEdge(vert2, edg2);
         cout << "Edge has been inserted successfully between " << vertex1 << " and " << vertex2 << endl;
     }
-    // print vertices along with the vertices they're connected with
+    // prints the vertices along with the vertices they're connected with
     void printVertexWithEdges()
     {
         for (vertex *vert = firstVertex; vert != NULL; vert = vert->nextVertex)
         {
             cout << vert->data << " ----> ";
-            if (vert->firstEdge != NULL)
-            {
-                for(edge *edg = vert->firstEdge; edg != NULL; edg = edg->nextEdge)
-                    cout << edg->end->data << ", ";
-            }    
+            for (edge *edg = vert->firstEdge; edg != NULL; edg = edg->nextEdge)
+                cout << edg->end->data << ", ";
             cout << endl;
         }
     }
-    // returns the unprocessed vertices after BFS
+    // returns the unprocessed vertices after BFS/DFS
     vertex *findUnprocessedVertex()
     {
         for (vertex *temp = firstVertex; temp != NULL; temp = temp->nextVertex)
@@ -223,6 +221,16 @@ class graph
         }
         return NULL;
     }
+
+    void reset()
+    {
+        for (vertex *temp = firstVertex; temp != NULL; temp = temp->nextVertex)
+        {
+            temp->isProcessed = false;
+            temp->quNext = NULL;
+        }
+    }
+
     // performs bfs
     void bfs()
     {
@@ -232,27 +240,23 @@ class graph
             return;
         }
         vertex *reference = firstVertex;
-        for (vertex *temp = firstVertex; temp != NULL; temp = temp->nextVertex)
-        {
-            temp->isProcessed = false;
-            temp->quNext = NULL;
-        }
-        bfs_start: 
-        queue q;   
+        reset();
+        queue q;
+    bfs_start:
         q.enqueue(reference);
-        while(!q.isEmpty())
+        while (!q.isEmpty())
         {
             vertex *currVertex = q.dequeue();
             for (edge *edg = currVertex->firstEdge; edg != NULL; edg = edg->nextEdge)
             {
-                if (edg->end->isProcessed == false)
-                    q.enqueue(edg->end);   
+                if (!edg->end->isProcessed)
+                    q.enqueue(edg->end);
             }
             cout << currVertex->data << " ";
         }
         reference = findUnprocessedVertex();
-        if(reference != NULL)
-            goto bfs_start;           
+        if (reference != NULL)
+            goto bfs_start;
         cout << endl;
     }
 
@@ -260,7 +264,7 @@ class graph
     {
         for (edge *edg = vert->firstEdge; edg != NULL; edg = edg->nextEdge)
         {
-            if (edg->end->isProcessed == false)
+            if (!edg->end->isProcessed)
                 return false;
         }
         return true;
@@ -273,54 +277,63 @@ class graph
             cout << "No vertices present inside the graph!" << endl;
             return;
         }
-        for (vertex *temp = firstVertex; temp != NULL; temp = temp->nextVertex)
-        {
-            temp->isProcessed = false;
-            temp->quNext = NULL;
-        }
+        reset();
         stack s;
         vertex *currVertex = firstVertex;
-        back_track:
-        if (currVertex->isProcessed == false)
+    dfs_start:
+        s.push(currVertex);
+        cout << currVertex->data << " ";
+    back_track:    
+        while (!isEnd(currVertex))
         {
-            s.push(currVertex);
-            cout << currVertex->data << " ";
-        }  
-        while(!isEnd(currVertex))
-        {
-            for(edge *edg = currVertex->firstEdge; edg != NULL; edg = edg->nextEdge)
+            for (edge *edg = currVertex->firstEdge; edg != NULL; edg = edg->nextEdge)
             {
-                if (edg->end->isProcessed == false)
+                if (!edg->end->isProcessed)
                 {
                     currVertex = edg->end;
                     break;
                 }
             }
-            if (currVertex ->isProcessed == false)
-            {
-                s.push(currVertex);
-                cout << currVertex->data << " ";
-            }
+            s.push(currVertex);
+            cout << currVertex->data << " ";
         }
 
-        if(!s.isEmpty())
+        if (!s.isEmpty())
         {
             currVertex = s.pop();
             goto back_track;
-        } 
+        }
 
         currVertex = findUnprocessedVertex();
-        if(currVertex != NULL)
-            goto back_track;            
-        cout << endl;     
+        if (currVertex != NULL)
+            goto dfs_start;
+        cout << endl;
     }
 
-    void normalPrint()
+    void dfsVisit(vertex *currVertex)
     {
-        for (vertex *temp = firstVertex; temp != NULL; temp = temp->nextVertex)
-            cout << temp->data << " ";
+        cout << currVertex-> data << " ";
+        currVertex->isProcessed = true;
+    
+        for(edge *edg = currVertex->firstEdge; edg != NULL; edg = edg->nextEdge)
+        {
+            if(!edg->end->isProcessed)
+                dfsVisit(edg->end);
+        }
+    }
+
+    void recDFS()
+    {
+        reset();
+        vertex *reference = firstVertex;
+    dfs_start:
+        dfsVisit(reference);
+        reference = findUnprocessedVertex();
+        if (reference != NULL)
+            goto dfs_start;
         cout << endl;    
     }
+
 };
 int main()
 {
@@ -328,32 +341,40 @@ int main()
     char data;
     char vertex1, vertex2;
     graph g;
-    while(opt != 7)
+    while (opt != 7)
     {
-        cout << "1-Insert vertex, 2-Insert Edge, 3-Normal Traversal, 4-BFS, 5-DFS, 6-Print Vertices with edges, 7-Exit: ";
+        cout << "1-Insert vertex, 2-Insert Edge, 3-BFS, 4-Rec-DFS, 5-DFS, 6-Print Vertices with edges, 7-Exit: ";
         cin >> opt;
-        switch(opt)
+        switch (opt)
         {
-            case 1: cout << "Enter vertex: ";
-                    cin >> data;
-                    g.insertVertex(g.createVertex(data));
-                    break;
-            case 2: cout << "Enter the vertices: ";
-                    cin >> vertex1 >> vertex2;
-                    g.insertEdge(vertex1, vertex2);
-                    break;
-            case 3: g.normalPrint();
-                    break;
-            case 4: g.bfs();
-                    break; 
-            case 5: g.dfs();
-                    break;               
-            case 6: g.printVertexWithEdges();
-                    break;        
-            case 7: cout << "Exited" << endl;
-                    break;
-            default:cout << "Invalid option" << endl;
-                    break;                             
+        case 1:
+            cout << "Enter vertex: ";
+            cin >> data;
+            g.insertVertex(g.createVertex(data));
+            break;
+        case 2:
+            cout << "Enter the vertices: ";
+            cin >> vertex1 >> vertex2;
+            g.insertEdge(vertex1, vertex2); 
+            break;
+        case 3:
+            g.bfs();
+            break;
+        case 4:
+            g.recDFS();
+            break;
+        case 5:
+            g.dfs();
+            break;
+        case 6:
+            g.printVertexWithEdges();
+            break;
+        case 7:
+            cout << "Exited" << endl;
+            break;
+        default:
+            cout << "Invalid option" << endl;
+            break;
         }
     }
 }

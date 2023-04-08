@@ -101,10 +101,12 @@ class graph
 {
 public:
     vertex *firstVertex;
+    int count;
 
     graph()
     {
         firstVertex = NULL;
+        count = 0;
     }
     // creates and returns a vertex
     vertex *createVertex(char data)
@@ -143,6 +145,7 @@ public:
                 ;
             temp->nextVertex = vert;
         }
+        count ++;
         cout << "Vertex inserted successfully!" << endl;
     }
     // finds the vertex with corresponding data values and returns it, returns NULL if not found
@@ -355,44 +358,40 @@ public:
         cout << endl;
     }
 
-    bool recCheckCycle(vertex *reference, vertex *currVertex)
+    bool recCheckCycle(vertex *reference, vertex *currVertex, int visited_vertices = 0, string res = "")
     {
-        if (currVertex == NULL)
-            return false;
-        if (isEnd(currVertex))
+        if (visited_vertices > count)
             return false;
         if (currVertex == reference)
             return true;
         for (edge *edg = currVertex->firstEdge; edg != NULL; edg = edg->nextEdge)
         {
-            if(recCheckCycle(reference, edg->end))  
+            if (recCheckCycle(reference, edg->end, visited_vertices + 1))
             {
                 cout << currVertex->data << " ";
-                return true;
+                break;
             }
-        }            
-        return false;
+        }
     }
 
     void checkCycle()
     {
         int no_of_cycles = 0;
-        cout << "Cycles: " << endl;
         for (vertex *reference = firstVertex; reference != NULL; reference = reference->nextVertex)
         {
-            if (reference->firstEdge != NULL)
+            for (edge *edg = reference->firstEdge; edg != NULL; edg = edg->nextEdge)
             {
-                if (recCheckCycle(reference, reference->firstEdge->end))
+                if (recCheckCycle(reference, edg->end))
                 {
-                    no_of_cycles++;
                     cout << reference->data << endl;
+                    no_of_cycles++;
                 }
-            }
+            } 
         }
         if (no_of_cycles == 0)
-            cout << "No cycles present" << endl;
+            cout << "No cycles found" << endl;
         else
-            cout << "No of cycles: " << no_of_cycles << endl;    
+            cout << "No of cycles: " << no_of_cycles << endl;
     }
 };
 int main()
@@ -436,7 +435,7 @@ int main()
             break;
         case 8:
             g.checkCycle();
-            break;    
+            break;
         case 9:
             cout << "Exited" << endl;
             break;

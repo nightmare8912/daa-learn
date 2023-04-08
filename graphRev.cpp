@@ -178,7 +178,7 @@ public:
         }
     }
     // checks if vertices are present, if they are, then it creates and adds the edges to both the vertices
-    void insertEdge(char vertex1, char vertex2)
+    void insertUndirectedEdge(char vertex1, char vertex2)
     {
         vertex *vert1, *vert2;
         vert1 = findVertex(vertex1);
@@ -199,6 +199,27 @@ public:
         edg2 = createEdge(vert2, vert1);
         addEdge(vert2, edg2);
         cout << "Edge has been inserted successfully between " << vertex1 << " and " << vertex2 << endl;
+    }
+    // inserts a directed edge between vertex 1 and vertex 2
+    void insertDirectedEdge(char vertex1, char vertex2)
+    {
+        vertex *src, *dest;
+        src = findVertex(vertex1);
+        if (src == NULL)
+        {
+            cout << vertex1 << " was not found in the graph" << endl;
+            return;
+        }
+        dest = findVertex(vertex2);
+        if (dest == NULL)
+        {
+            cout << vertex2 << " was not found in the graph" << endl;
+            return;
+        }
+        edge *edg;
+        edg = createEdge(src, dest);
+        addEdge(src, edg);
+        cout << "Edge has been inserted successfully from " << vertex1 << " to " << vertex2 << endl;
     }
     // prints the vertices along with the vertices they're connected with
     void printVertexWithEdges()
@@ -283,7 +304,7 @@ public:
     dfs_start:
         s.push(currVertex);
         cout << currVertex->data << " ";
-    back_track:    
+    back_track:
         while (!isEnd(currVertex))
         {
             for (edge *edg = currVertex->firstEdge; edg != NULL; edg = edg->nextEdge)
@@ -312,12 +333,12 @@ public:
 
     void dfsVisit(vertex *currVertex)
     {
-        cout << currVertex-> data << " ";
+        cout << currVertex->data << " ";
         currVertex->isProcessed = true;
-    
-        for(edge *edg = currVertex->firstEdge; edg != NULL; edg = edg->nextEdge)
+
+        for (edge *edg = currVertex->firstEdge; edg != NULL; edg = edg->nextEdge)
         {
-            if(!edg->end->isProcessed)
+            if (!edg->end->isProcessed)
                 dfsVisit(edg->end);
         }
     }
@@ -331,9 +352,48 @@ public:
         reference = findUnprocessedVertex();
         if (reference != NULL)
             goto dfs_start;
-        cout << endl;    
+        cout << endl;
     }
 
+    bool recCheckCycle(vertex *reference, vertex *currVertex)
+    {
+        if (currVertex == NULL)
+            return false;
+        if (isEnd(currVertex))
+            return false;
+        if (currVertex == reference)
+            return true;
+        for (edge *edg = currVertex->firstEdge; edg != NULL; edg = edg->nextEdge)
+        {
+            if(recCheckCycle(reference, edg->end))  
+            {
+                cout << currVertex->data << " ";
+                return true;
+            }
+        }            
+        return false;
+    }
+
+    void checkCycle()
+    {
+        int no_of_cycles = 0;
+        cout << "Cycles: " << endl;
+        for (vertex *reference = firstVertex; reference != NULL; reference = reference->nextVertex)
+        {
+            if (reference->firstEdge != NULL)
+            {
+                if (recCheckCycle(reference, reference->firstEdge->end))
+                {
+                    no_of_cycles++;
+                    cout << reference->data << endl;
+                }
+            }
+        }
+        if (no_of_cycles == 0)
+            cout << "No cycles present" << endl;
+        else
+            cout << "No of cycles: " << no_of_cycles << endl;    
+    }
 };
 int main()
 {
@@ -341,9 +401,9 @@ int main()
     char data;
     char vertex1, vertex2;
     graph g;
-    while (opt != 7)
+    while (opt != 9)
     {
-        cout << "1-Insert vertex, 2-Insert Edge, 3-BFS, 4-Rec-DFS, 5-DFS, 6-Print Vertices with edges, 7-Exit: ";
+        cout << "1-Insert vertex, 2-Insert Undirected Edge, 3-Insert Directed Edge, 4-BFS, 5-Rec-DFS, 6-DFS, 7-Print Vertices with edges, 8-Check Cycles,9-Exit: ";
         cin >> opt;
         switch (opt)
         {
@@ -355,21 +415,29 @@ int main()
         case 2:
             cout << "Enter the vertices: ";
             cin >> vertex1 >> vertex2;
-            g.insertEdge(vertex1, vertex2); 
+            g.insertUndirectedEdge(vertex1, vertex2);
             break;
         case 3:
-            g.bfs();
+            cout << "Enter source and destination vertices: ";
+            cin >> vertex1 >> vertex2;
+            g.insertDirectedEdge(vertex1, vertex2);
             break;
         case 4:
-            g.recDFS();
+            g.bfs();
             break;
         case 5:
-            g.dfs();
+            g.recDFS();
             break;
         case 6:
-            g.printVertexWithEdges();
+            g.dfs();
             break;
         case 7:
+            g.printVertexWithEdges();
+            break;
+        case 8:
+            g.checkCycle();
+            break;    
+        case 9:
             cout << "Exited" << endl;
             break;
         default:

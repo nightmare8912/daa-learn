@@ -31,10 +31,11 @@ void traverse ()
         cout << temp -> data << " ";
     cout << endl;    
 }
-void printRev (node *temp = head)
+void printRev (node *temp)
 {
-    if (temp -> next != NULL)
-        printRev (temp -> next);
+    if (temp == NULL)
+        return;
+    printRev (temp -> next);
     cout << temp -> data << " ";    
 }
 int main ()
@@ -52,7 +53,7 @@ int main ()
                     break;
             case 2: traverse ();
                     break;
-            case 3: printRev ();
+            case 3: printRev (head);
                     cout << endl;
                     break;                
         }

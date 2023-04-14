@@ -1,5 +1,6 @@
 #include <iostream>
 #include <time.h>
+#include "dataLibrary_v5.h"
 using namespace std;
 struct edge;
 struct vertex
@@ -102,6 +103,8 @@ class graph
 {
 public:
     vertex *firstVertex;
+    Utilities<char> ut;
+    Buckets<char> buck;
     int count;
 
     graph()
@@ -225,52 +228,40 @@ public:
         addEdge(src, edg);
         cout << "Edge has been inserted successfully from " << vertex1 << " to " << vertex2 << endl;
     }
-    // prints the vertices along with the vertices they're connected with
-    void printVertexWithEdges()
-    {
-        for (vertex *vert = firstVertex; vert != NULL; vert = vert->nextVertex)
-        {
-            cout << vert->data << " ----> ";
-            for (edge *edg = vert->firstEdge; edg != NULL; edg = edg->nextEdge)
-                cout << edg->end->data << ", ";
-            cout << endl;
-        }
-    }
 
-    edge *findEdge(vertex *source, vertex *end)
+    edge *findEdge(vertex *vert1, vertex *vert2)
     {
-        for (edge *edg = source->firstEdge; edg != NULL; edg = edg->nextEdge)
+        for (edge *edg = vert1->firstEdge; edg != NULL; edg = edg->nextEdge)
         {
-            if (edg->end == end)
+            if (edg->end = vert2)
                 return edg;
-        } 
-        return NULL;
-    }
-
-    void removeEdge(vertex *vert, edge *edg)
-    {
-        if (edg == NULL)
-            return;
-        if (edg == vert->firstEdge)
-        {
-            delete vert->firstEdge;
-            vert->firstEdge = NULL;
         }
-            
-        else
-        {
-            edge *temp;
-            for (temp = vert->firstEdge; temp->nextEdge->nextEdge != NULL; temp = temp->nextEdge)
-                ;
-            swap(temp->nextEdge->start, edg->start);
-            swap(temp->nextEdge->end, edg->end);
-            delete temp->nextEdge;
-            temp->nextEdge = NULL;  
-        }    
     }
 
-    void deleteEdge(char vertex1, char vertex2)
+    void deleteEdge(vertex *vert, edge *edg)
     {
+        if (vert->firstEdge == edg)
+        {
+            vert->firstEdge = edg->nextEdge;
+            delete edg;
+            return;
+        }
+        edge *temp;
+        for (temp = vert->firstEdge; temp->nextEdge->nextEdge != NULL; temp = temp->nextEdge)
+            ;
+        swap(temp->nextEdge->end, edg->end);
+        swap(temp->nextEdge->start, edg->start);
+        delete temp->nextEdge;
+        temp->nextEdge = NULL;
+    }
+
+    void removeEdge(char vertex1, char vertex2)
+    {
+        if (vertex1 == vertex2)
+        {
+            cout << "Cannot remove edges between same vertices " << endl;
+            return;
+        }
         vertex *vert1, *vert2;
         vert1 = findVertex(vertex1);
         if (vert1 == NULL)
@@ -281,30 +272,38 @@ public:
         vert2 = findVertex(vertex2);
         if (vert2 == NULL)
         {
-            cout << vertex2 << " was not found in the graph!" << endl;
+            cout << vertex2 << " was not found in the graph" << endl;
             return;
         }
-
         edge *edg1, *edg2;
         edg1 = findEdge(vert1, vert2);
         edg2 = findEdge(vert2, vert1);
         if (edg1 == NULL && edg2 == NULL)
         {
-            cout << "No edge exists between " << vertex1 << " and " << vertex2 << endl;
+            cout << "No edge was found between " << vertex1 << " and " << vertex2 << endl;
             return;
         }
         if (edg1 != NULL)
-            removeEdge(vert1, edg1);
+            deleteEdge(vert1, edg1);
         if (edg2 != NULL)
-            removeEdge(vert2, edg2);     
-        cout << "Edge between " << vertex1 << " and " << vertex2 << " was removed!" << endl;
+            deleteEdge(vert2, edg2);
+        cout << "Edge between " << vertex1 << " and " << vertex2 << " was removed successfully!" << endl;         
     }
-
-    void deleteEdge(vertex *vert)
+    void deleteVertex(vertex *vert)
     {
-        for (vertex *temp = firstVertex; temp != NULL; temp = temp->nextVertex)
-            removeEdge(temp, findEdge(temp, vert));
-        
+        if (vert == firstVertex)
+        {
+            firstVertex = firstVertex->nextVertex;
+            delete vert;
+            return;
+        }
+        vertex *temp;
+        for (temp = firstVertex; temp->nextVertex->nextVertex != NULL; temp = temp->nextVertex)
+            ;
+        swap(temp->nextVertex->data, vert->data);
+        swap(temp->nextVertex->firstEdge, vert->firstEdge);
+        delete temp->nextVertex;
+        temp->nextVertex = NULL;    
     }
 
     void destroyAllEdges(edge *edg)
@@ -312,41 +311,46 @@ public:
         if (edg == NULL)
             return;
         destroyAllEdges(edg->nextEdge);
-        delete edg; 
-    }
-
-    void removeVertex(vertex *vert)
-    {
-        destroyAllEdges(vert->firstEdge);
-        deleteEdge(vert);
-        if (vert == firstVertex)
-        {
-            firstVertex = firstVertex->nextVertex;
-            delete vert; 
-        } 
-        else
-        {
-            vertex *temp;
-            for (temp = firstVertex; temp->nextVertex->nextVertex != NULL; temp = temp->nextVertex)
-                ;
-            swap(temp->nextVertex->data, vert->data);
-            swap(temp->nextVertex->firstEdge, vert->firstEdge);
-            delete temp->nextVertex;
-            temp->nextVertex = NULL;
-        } 
-    }
-
-    void deleteVertex(char vertex1)
+        delete edg;    
+    }    
+    void removeVertex(char vertex1)
     {
         vertex *vert;
         vert = findVertex(vertex1);
         if (vert == NULL)
         {
-            cout << vertex1 << " is not in the graph!" << endl;
+            cout << vertex1 << " was not found in the graph!" << endl;
             return;
         }
-        removeVertex(vert);
-        cout << vertex1 << " has been removed from the graph!" << endl;
+        for (vertex *temp = firstVertex; temp != NULL; temp = temp->nextVertex)
+        {
+            for (edge *edg = temp->firstEdge; edg != NULL;)
+            {
+                if (edg->end == vert)
+                {
+                    edge *tempEdge = edg->nextEdge;
+                    deleteEdge(temp, edg);
+                    edg = tempEdge;
+                    continue;
+                }   
+                edg = edg->nextEdge; 
+            }
+        }
+        destroyAllEdges(vert->firstEdge);
+        deleteVertex(vert);
+        cout << vertex1 << " was deleted from the graph!" << endl;
+    }
+
+    // prints the vertices along with the vertices they're connected with
+    void printVertexWithEdges()
+    {
+        for (vertex *vert = firstVertex; vert != NULL; vert = vert->nextVertex)
+        {
+            cout << vert->data << " ----> ";
+            for (edge *edg = vert->firstEdge; edg != NULL; edg = edg->nextEdge)
+                cout << edg->end->data << ", ";
+            cout << endl;
+        }
     }
 
     // returns the unprocessed vertices after BFS/DFS
@@ -462,6 +466,11 @@ public:
 
     void recDFS()
     {
+        if (firstVertex == NULL)
+        {
+            cout << "No vertices present inside the graph!" << endl;
+            return;
+        }
         reset();
         vertex *reference = firstVertex;
     dfs_start:
@@ -472,50 +481,47 @@ public:
         cout << endl;
     }
 
-    bool recCheckCycle(vertex *reference, vertex *currVertex, int visited_vertices = 0)
+    void recCheckCycle(vertex *ref, vertex *currVertex, Buckets<char> &buck,LinkedList<char> list)
     {
-        if (visited_vertices > count)
-            return false;
-        if (currVertex == reference)
-            return true;
+        if (currVertex == NULL)
+            return;
+        if (currVertex == ref && !ut.isPresentJumbled(buck, list) && list.getCount() != 2)
+        {
+            buck.insert(list);
+            list.destroy();
+            return;
+        }
+
+        if (ut.isPresent(list, currVertex->data))
+            return;
+
         for (edge *edg = currVertex->firstEdge; edg != NULL; edg = edg->nextEdge)
         {
-            if (recCheckCycle(reference, edg->end, visited_vertices + 1))
-            {
-                cout << currVertex->data << " ";
-                break;
-            }
+            LinkedList<char> newList = ut.createNewCopy(list);
+            newList.insert(currVertex->data);
+            recCheckCycle(ref, edg->end, buck, newList);
         }
     }
 
     void checkCycle()
     {
-        int no_of_cycles = 0;
-        for (vertex *reference = firstVertex; reference != NULL; reference = reference->nextVertex)
+        for (vertex *ref = firstVertex; ref != NULL; ref = ref->nextVertex)
         {
-            for (edge *edg = reference->firstEdge; edg != NULL; edg = edg->nextEdge)
+            for (edge *edg = ref->firstEdge; edg != NULL; edg = edg->nextEdge)
             {
-                if (recCheckCycle(reference, edg->end))
-                {
-                    cout << reference->data << endl;
-                    no_of_cycles++;
-                }
-            } 
+                LinkedList<char> list;
+                list.insert(ref->data);
+                recCheckCycle(ref, edg->end, buck, list);
+            }
         }
-        if (no_of_cycles == 0)
-            cout << "No cycles found" << endl;
+
+        if (buck.getCount() == 0)
+            cout << "No cycles were detected" << endl;
         else
-            cout << "No of cycles: " << no_of_cycles << endl;
+            buck.print();
+        buck.destroy();        
     }
 };
-char getAlphabet()
-{
-    return (rand() % 25 + 65);
-}
-int getRand()
-{
-    return rand() % 8;
-}
 int main()
 {
     int opt = -1;
@@ -523,38 +529,28 @@ int main()
     char vertex1, vertex2;
     srand((long int)clock());
     graph g;
-    long int speed = 0;
     while (opt != 11)
     {
-        speed ++;
-        if (speed % 100000 != 0)
-            continue;
-        if (speed > 100000)
-            speed = 0;  
-        cout << "1-Insert vertex, 2-Insert Undirected Edge, 3-Insert Directed Edge, 4-BFS, \n5-Rec-DFS, 6-DFS, 7-Print Vertices with edges, 8-Check Cycles, 9-Delete Edge, 10-Delete Vertex, 11-Exit: ";
-        // cin >> opt;
-        opt = getRand();  
+        cout << "1-Insert vertex, 2-Insert Directed Edge, 3-Insert undirected Edge, 4-BFS, \n5-Rec-DFS, 6-DFS, 7-Print Vertices with edges, 8-Check Cycles, 9-Delete Edge, 10-Delete Vertex, 11-Exit: ";
+        cin >> opt;
         switch (opt)
         {
         case 1:
             cout << "Enter vertex: ";
-            // cin >> data;
-            data = getAlphabet();
+            cin >> data;
             g.insertVertex(g.createVertex(data));
             break;
         case 2:
-            cout << "Enter the vertices: ";
-            // cin >> vertex1 >> vertex2;
-            vertex1 = getAlphabet();
-            vertex2 = getAlphabet();
-            g.insertUndirectedEdge(vertex1, vertex2);
+            cout << "Enter source and destination vertices: ";
+            cin >> vertex1 >> vertex2;
+            cout << vertex1 << " " << vertex2 << endl;
+            g.insertDirectedEdge(vertex1, vertex2);
             break;
         case 3:
-            cout << "Enter source and destination vertices: ";
-            // cin >> vertex1 >> vertex2;
-            vertex1 = getAlphabet();
-            vertex2 = getAlphabet();
-            g.insertDirectedEdge(vertex1, vertex2);
+            cout << "Enter the vertices: ";
+            cin >> vertex1 >> vertex2;
+            cout << vertex1 << " " << vertex2 << endl;
+            g.insertUndirectedEdge(vertex1, vertex2);
             break;
         case 4:
             g.bfs();
@@ -573,17 +569,17 @@ int main()
             break;
         case 9:
             cout << "Enter the vertices: ";
-            // cin >> vertex1 >> vertex2;
-            vertex1 = getAlphabet();
-            vertex2 = getAlphabet();
-            g.deleteEdge(vertex1, vertex2);
+            cin >> vertex1 >> vertex2;
+            cout << vertex1 << " " << vertex2 << endl;
+            g.removeEdge(vertex1, vertex2);
             break;
-        case 10:
-            cout << "Enter vertex: ";
-            // cin >> data;
-            data = getAlphabet();
-            g.deleteVertex(data);
-            break;    
+        // case 10:
+        //     cout << "Enter vertex: ";
+        //     // cin >> data;
+        //     data = getAlphabet();
+        //     cout << data << endl;
+        //     g.removeVertex(data);
+        //     break;    
         case 11:
             cout << "Exited" << endl;
             break;

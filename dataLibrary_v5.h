@@ -1,0 +1,764 @@
+#include <iostream>
+#include <time.h>
+
+using namespace std;
+
+template <typename T>
+class LinkedList;
+
+template <typename T>
+class Tree;
+
+template <typename T>
+class Buckets;
+
+template <typename T>
+class Utilities;
+
+template <typename T>
+struct sllNode
+{
+    T data;
+    sllNode<T> *next;
+};
+
+template <typename T>
+class LinkedList
+{
+
+private:
+    sllNode<T> *head;
+    int count;
+
+public:
+    LinkedList()
+    {
+        head = NULL;
+        count = 0;
+    }
+
+    sllNode<T> *getHead()
+    {
+        return head;
+    }
+
+    int getCount()
+    {
+        return count;
+    }
+
+    sllNode<T> *createNode(T data)
+    {
+        sllNode<T> *temp = new sllNode<T>;
+        temp->data = data;
+        temp->next = NULL;
+        return temp;
+    }
+private:
+    void insertFront(sllNode<T> *newnode)
+    {
+        if (newnode->next != NULL)
+            newnode = createNode(newnode->data);
+        if (head == NULL)
+            head = newnode;
+        else
+        {
+            newnode->next = head;
+            head = newnode;
+        }
+        count++;
+    }
+public:
+    void insertFront(T data)
+    {
+        insertFront(createNode(data));
+    }
+private:
+    void insertEnd(sllNode<T> *newnode)
+    {
+        if (newnode->next != NULL)
+            newnode = createNode(newnode->data);
+        if (head == NULL)
+            head = newnode;
+        else
+        {
+            sllNode<T> *temp;
+            for (temp = head; temp->next != NULL; temp = temp->next)
+                ;
+            temp->next = newnode;
+        }
+        count++;
+    }
+public:
+    void insertEnd(T data)
+    {
+        insertEnd(createNode(data));
+    }
+
+    void insert(sllNode<T> *temp, int type = 1)
+    {
+        // sllNode<T> *newnode = createNode(temp->data);
+        if (type == 1)
+            insertEnd(temp);
+        else
+            insertFront(temp);
+    }
+
+    void insert(T data, int type = 1)
+    {
+        if (type == 1)
+            insertEnd(data);
+        else
+            insertFront(data);
+    }
+
+    sllNode<T> *removeFront()
+    {
+        if (head == NULL)
+            return NULL;
+        sllNode<T> *temp = head;
+        head = head->next;
+        temp->next = NULL;
+        count--;
+        return temp;
+    }
+
+    sllNode<T> *removeEnd()
+    {
+        if (head == NULL)
+            return NULL;
+        sllNode<T> *temp1, *temp2;
+        for (temp1 = head; temp1->next->next != NULL; temp1 = temp1->next)
+            ;
+        temp2 = temp1->next;
+        temp1->next = NULL;
+        count--;
+        return temp2;
+    }
+
+    sllNode<T> *remove(int type = 1)
+    {
+        if (type == 1)
+            return removeEnd();
+        else
+            return removeFront();    
+    }
+
+    void delFront()
+    {
+        sllNode<T> *temp = removeFront();
+        if (temp != NULL)
+            delete temp;
+    }
+
+    void delEnd()
+    {
+        sllNode<T> *temp = removeEnd();
+        if (temp != NULL)
+            delete temp;
+    }
+
+    void del(int type = 1)
+    {
+        if (type == 1)
+            delEnd();
+        else
+            delFront();
+    }
+
+    void printRev(sllNode<T> *temp)
+    {
+        if (temp == NULL)
+            return;
+        printRev(temp->next);
+        cout << temp->data << " ";
+    }
+
+    void printRev()
+    {
+        printRev(head);
+        cout << endl;
+    }
+
+    void print(int type = 1)
+    {
+        if (type != 1)
+        {
+            printRev();
+            return;
+        }
+        for (sllNode<T> *temp = head; temp != NULL; temp = temp->next)
+            cout << temp->data << " ";
+        cout << endl;
+        return;
+    }
+
+private:
+    void destroy(sllNode<T> *temp)
+    {
+        if (temp == NULL)
+            return;
+        destroy(temp->next);
+        delete temp;    
+    }
+public:
+    void destroy()
+    {
+        destroy(head);
+        head = NULL;
+        count = 0;
+    }
+
+    ~LinkedList()
+    {
+
+    }
+
+};
+
+template <typename T>
+struct bucketNode
+{
+    int key;
+    LinkedList<T> linkedList;
+    bucketNode<T> *next;
+};
+
+template <typename T>
+class Buckets
+{
+private:
+    bucketNode<T> *head;
+    int count;
+    Utilities<T> ut;
+
+public:
+    Buckets()
+    {
+        head = NULL;
+        count = 0;
+    }
+
+    bucketNode<T> *getHead()
+    {
+        return head;
+    }
+
+    int getCount()
+    {
+        return count;
+    }
+
+    void updateKeys()
+    {
+        count = 0;
+        for (bucketNode<T> *temp = head; temp != NULL; temp = temp->next)
+            temp->key = count++;
+    }
+
+    bucketNode<T> *createNode(LinkedList<T> list)
+    {
+        bucketNode<T> *newnode = new bucketNode<T>;
+        newnode->next = NULL;
+        newnode->linkedList = ut.createNewCopy(list);
+        newnode->key = 0;
+        return newnode;
+    }
+private:
+    void insertFront(bucketNode<T> *newnode)
+    {
+        if (newnode->next != NULL)
+            newnode = createNode(newnode->linkedList);
+        if (head == NULL)
+            head = newnode;
+        else
+        {
+            newnode->next = head;
+            head = newnode;
+        }
+        updateKeys();
+    }
+public:
+    void insertFront(LinkedList<T> list)
+    {
+        insertFront(createNode(list));
+    }
+private:
+    void insertEnd(bucketNode<T> *newnode)
+    {
+        if (newnode->next != NULL)
+            newnode = createNode(newnode->linkedList);
+        if (head == NULL)
+            head = newnode;
+        else
+        {
+            bucketNode<T> *temp;
+            for (temp = head; temp->next != NULL; temp = temp->next)
+                ;
+            temp->next = newnode;
+        }
+        updateKeys();
+    }
+public:
+    void insertEnd(LinkedList<T> list)
+    {
+        insertEnd(createNode(list));
+    }
+
+    void insert(bucketNode<T> *bucketNode, int type = 1)
+    {
+        if (type == 1)
+            insertEnd(bucketNode);
+        else
+            insertFront(bucketNode);
+    }
+
+    void insert(LinkedList<T> list, int type = 1)
+    {
+        insert(createNode(list), type);
+    }
+
+    bucketNode<T> *removeFront()
+    {
+        if (head == NULL)
+            return NULL;
+        bucketNode<T> *temp = head;
+        head = head->next;
+        temp->next = NULL;
+        updateKeys();
+        return temp;
+    }
+
+    bucketNode<T> *removeEnd()
+    {
+        if (head == NULL)
+            return NULL;
+        bucketNode<T> *temp1, *temp2;
+        for (temp1 = head; temp1->next->next != NULL; temp1 = temp1->next)
+            ;
+        temp2 = temp1->next;
+        temp1->next = NULL;
+        updateKeys();
+        return temp2;
+    }
+
+    bucketNode<T> *remove(int type = 1)
+    {
+        if (type == 1)
+            return removeEnd();
+        else
+            return removeFront();    
+    }
+
+    void delFront()
+    {
+        bucketNode<T> *temp = removeFront();
+        if (temp != NULL)
+        {
+            temp->linkedList.destroy();
+            delete temp;
+        }    
+    }
+
+    void delEnd()
+    {
+        bucketNode<T> *temp = removeEnd();
+        if (temp != NULL)
+        {
+            temp->linkedList.destroy();
+            delete temp;
+        }
+    }
+
+    void del(int type = 1)
+    {
+        if (type == 1)
+            delEnd();
+        else
+            delFront();
+    }
+
+    void printIndex()
+    {
+        for (bucketNode<T> *temp = head; temp != NULL; temp = temp->next)
+            cout << temp->key << " ";
+        cout << endl;
+        // return "";
+    }
+
+    void printWithoutIndex()
+    {
+        for (bucketNode<T> *temp = head; temp != NULL; temp = temp->next)
+            temp->linkedList.print();
+        cout << endl;
+        // return "";
+    }
+
+    void printWithIndex()
+    {
+        for (bucketNode<T> *temp = head; temp != NULL; temp = temp->next)
+        {
+            cout << temp->key << " -----> ";
+            temp->linkedList.print();
+        }
+        cout << endl;
+        // return "";
+    }
+
+    void print(int type = 0)
+    {
+        if (type == 0)
+            printWithIndex();
+        else if (type == 1)
+            printWithoutIndex();
+        else if (type == -1)
+            printIndex();
+        // return "";    
+    }
+
+private:
+    void destroy(bucketNode<T> *temp)
+    {
+        if (temp == NULL)
+            return;
+        destroy(temp->next);
+        temp->linkedList.destroy();
+        delete temp;    
+    }
+public:
+    void destroy()
+    {
+        destroy(head);
+        head = NULL;
+        count = 0;
+    }
+
+    ~Buckets()
+    {
+
+    }
+};
+
+template <typename T>
+class Utilities
+{
+public:
+
+    string gap(int n = 3)
+    {
+        for (int i = 0; i < n; i++)
+            cout << endl;
+        return "";    
+    }
+
+    string dummy(int n = 3, int n2 = 2)
+    {
+        gap(n2);
+        for (int i = 0; i < n; i++)
+            cout << (char)((rand() % 25) + 65);
+        gap(n2); 
+        return "";   
+    }
+
+    void initializeRandom(T arr[], int size ,int lower_range = -1, int upper_range = -1)
+    {
+        if (lower_range < 0)
+        {
+            upper_range = rand() % 30;
+            lower_range = rand () % upper_range;
+        }
+
+        if (upper_range < lower_range)
+            swap(upper_range, lower_range);
+
+        if (upper_range == lower_range)
+            upper_range += lower_range;
+            
+        for (int i = 0; i < size; i++)
+            arr[i] = rand() % (upper_range - lower_range + 1) + lower_range, rand() % 2;
+    }
+
+    void initializeRandom(LinkedList<T> &list, int lower_range = -1, int upper_range = -1 ,int no_of_elem = -1)
+    {
+        if (lower_range < 0)
+        {
+            upper_range = rand() % 30;
+            lower_range = rand () % upper_range;
+        }
+
+        if (upper_range < lower_range)
+            swap(upper_range, lower_range);
+
+        if (upper_range == lower_range)
+            upper_range += lower_range;
+
+        if (no_of_elem < 0) 
+        {
+            srand((long int)clock());
+            no_of_elem = rand() % 20;
+        }
+        
+        // sleep(1);
+
+        for (int i = 0; i < no_of_elem; i++)
+            list.insert(rand() % (upper_range - lower_range + 1) + lower_range, rand() % 2);
+    }
+
+    void initializeRandom(Buckets<T> &buck, int lower_range = -1, int upper_range = -1 ,int no_of_elem = -1)
+    {
+        if (lower_range < 0)
+        {
+            srand((unsigned) time((0)));
+            upper_range = rand() % 30;
+            lower_range = rand () % upper_range;
+        }
+
+        if (upper_range < lower_range)
+            swap(upper_range, lower_range);
+
+        if (upper_range == lower_range)
+            upper_range += lower_range;
+
+        if (no_of_elem < 0) 
+        {
+            srand((unsigned) time(0));
+            no_of_elem = rand() % 20;
+        }
+        for (int i = 0; i < no_of_elem; i++)
+        {
+            LinkedList<T> list;
+            initializeRandom(list);
+            buck.insert(list);
+        }
+    }
+
+    void sortAsc(T arr[], int size, int st_index = -1, int end_index = -1)
+    {
+        if (end_index <= 0)
+            end_index = size;
+        if (st_index < 0)
+            st_index = 0;    
+        for (int i = st_index; i < end_index; i++)
+        {
+            for (int j = i + 1; j < end_index; j++)
+            {
+                if (arr[i] > arr[j])
+                    swap(arr[i], arr[j]);
+            }
+        }
+    }
+
+    void sortDesc(T arr[], int size, int st_index = 0, int end_index = -1)
+    {
+        if (end_index <= 0)
+            end_index = size;
+        if (st_index < 0)
+            st_index = 0;    
+        for (int i = st_index; i < end_index; i++)
+        {
+            for (int j = i + 1; j < end_index; j++)
+            {
+                if (arr[i] < arr[j])
+                    swap(arr[i], arr[j]);
+            }
+        }
+    }
+
+    void sort(T arr[], int size, int type = 1, int st_index = -1, int end_index = -1)
+    {
+        if (type == 1)
+            sortAsc(arr, size, st_index, end_index);
+        else
+            sortDesc(arr, size, st_index, end_index);    
+    }
+
+    void sortAsc(LinkedList<T> &list)
+    {
+        for (sllNode<T> *i = list.getHead(); i != NULL; i = i->next)
+        {
+            for (sllNode<T> *j = i->next; j != NULL; j = j->next)
+            {
+                if (i->data > j->data)
+                    swap(i->data, j->data);
+            }
+        }
+    }
+
+    void sortDesc(LinkedList<T> &list)
+    {
+        for (sllNode<T> *i = list.getHead(); i != NULL; i = i->next)
+        {
+            for (sllNode<T> *j = i->next; j != NULL; j = j->next)
+            {
+                if (i->data < j->data)
+                    swap(i->data, j->data);
+            }
+        }
+    }
+
+    void sort(LinkedList<T> &list, int type = 1)
+    {
+        if (type == 1)
+            sortAsc(list);
+        else
+            sortDesc(list);    
+    }
+
+    LinkedList<T> createNewCopy(LinkedList<T> list)
+    {
+        LinkedList<T> newList;
+        for (sllNode<T> *temp = list.getHead(); temp != NULL; temp = temp->next)
+            newList.insertEnd(temp->data);
+        return newList;    
+    }
+
+    Buckets<T> createNewCopy(Buckets<T> buck)
+    {
+        Buckets<T> newBuck;
+        for (bucketNode<T> *temp = buck.getHead(); temp != NULL; temp = temp->next)
+        {
+            newBuck.insertEnd(temp->linkedList);
+        } 
+        return newBuck;
+    }
+
+    void copy(LinkedList<T> &list1, LinkedList<T> list2)
+    {
+        list1.destroy();
+        for (sllNode<T> *temp = list2.getHead(); temp != NULL; temp = temp->next)
+            list1.insertEnd(temp->data);
+    }
+
+    void copy(Buckets<T> &buck1, Buckets<T> buck2)
+    {
+        buck1.destroy();
+        for (bucketNode<T> *temp = buck2.getHead(); temp != NULL; temp = temp->next)
+            buck1.insertEnd(temp->linkedList);
+    }
+
+    void append(LinkedList<T> &list1, LinkedList<T> &list2)
+    {
+        for (sllNode<T> *temp = list2.getHead(); temp != NULL; temp = temp->next)
+            list1.insertEnd(temp->data);
+    }
+
+    void append(Buckets<T> &buck1, Buckets<T> buck2)
+    {
+        for (bucketNode<T> *temp = buck2.getHead(); temp != NULL; temp = temp->next)
+            buck1.insertEnd(temp->linkedList);
+    }
+
+    void prepend(LinkedList<T> &list1, LinkedList<T> list2)
+    {
+        for (sllNode<T> *temp = list2.getHead(); temp != NULL; temp = temp->next)
+            list1.insertFront(temp->data);
+    }
+
+    void prepend(Buckets<T> &buck1, Buckets<T> buck2)
+    {
+        for (bucketNode<T> *temp = buck2.getHead(); temp != NULL; temp = temp->next)
+            buck1.insertFront(temp->linkedList);
+    }
+
+    bool isEqual(LinkedList<T> list1, LinkedList<T> list2)
+    {
+        if (list1.getCount() != list2.getCount())
+            return false;
+        sllNode<T> *temp1, *temp2;
+        for (temp1 = list1.getHead(), temp2 = list2.getHead(); temp1 != NULL && temp2 != NULL; temp1 = temp1->next, temp2 = temp2->next)
+        {
+            if (temp1->data != temp2->data)
+                return false;
+        } 
+
+        if (temp1 != NULL || temp2 != NULL)
+            return false;
+        return true;       
+    }
+
+    bool isEqual(Buckets<T> buck1, Buckets<T> buck2)
+    {
+        if (buck1.getCount() != buck2.getCount())
+            return false;
+        bucketNode<T> *temp1, *temp2;
+        for (temp1 = buck1.getHead(), temp2 = buck2.getHead(); temp1 != NULL && temp2 != NULL; temp1 = temp1->next, temp2 = temp2->next)
+        {
+            if (!isEqual(temp1->linkedList, temp2->linkedList))
+                return false;
+        }  
+        if (temp1 != NULL || temp2 != NULL)
+            return false;
+        return true; 
+    }
+
+    bool isEqualJumbled(LinkedList<T> list1, LinkedList<T> list2)
+    {
+        bool rv = false;
+        if (list1.getCount() != list2.getCount())
+            return false;
+        LinkedList<T> temp1, temp2;
+        temp1 = createNewCopy(list1);
+        temp2 = createNewCopy(list2);
+        sort(temp1);
+        sort(temp2);
+        if (isEqual(temp1, temp2))
+            rv = true;
+        temp1.destroy();
+        temp2.destroy();
+        return rv;   
+    }
+
+    bool isPresentJumbled(Buckets<T> buck, LinkedList<T> list)
+    {
+        for (bucketNode<T> *temp = buck.getHead(); temp != NULL; temp = temp->next)
+        {
+            if (isEqualJumbled(temp->linkedList, list))
+                return true;
+        }
+        return false;
+    }
+
+    bool isPresent(LinkedList<T> list, T data)
+    {
+        for (sllNode<T> *temp = list.getHead(); temp != NULL; temp = temp->next)
+        {
+            if (temp->data == data)
+                return true;
+        }
+        return false;
+    }
+
+    bool isPresent(Buckets<T> buck, LinkedList<T> list)
+    {
+        for (bucketNode<T> *temp = buck.getHead(); temp != NULL; temp = temp->next)
+        {
+            if (isEqual(temp->linkedList, list))
+                return true;
+        }
+        return false;
+    }
+
+    void printArray(int arr[], int size)
+    {
+        for (int i = 0; i < size; i++)
+            cout << arr[i] << " ";
+        cout << endl;    
+    }
+
+    void printArray(LinkedList<T> list[], int no_of_elem)
+    {
+        for (int i = 0; i < no_of_elem; i++)    
+            list[i].print();
+    }
+
+    void printArray(Buckets<T> buck[], int no_of_elem)
+    {
+        for (int i = 0; i < no_of_elem; i++)    
+            buck[i].print();
+    }
+
+    ~Utilities()
+    {
+
+    }
+};

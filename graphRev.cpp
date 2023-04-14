@@ -7,11 +7,13 @@ struct vertex
 {
     char data;
     bool isProcessed;
-    vertex *nextVertex, *quNext;
+    int key;
+    vertex *nextVertex, *quNext, *predcessor;
     edge *firstEdge;
 };
 struct edge
 {
+    int weight;
     vertex *start, *end;
     edge *nextEdge;
 };
@@ -163,11 +165,12 @@ public:
         return NULL;
     }
     // creates the edge with given source and destination vertices
-    edge *createEdge(vertex *vert1, vertex *vert2)
+    edge *createEdge(vertex *vert1, vertex *vert2, int weight)
     {
         edge *edg = new edge;
         edg->start = vert1;
         edg->end = vert2;
+        edg->weight = weight;
         edg->nextEdge = NULL;
         return edg;
     }
@@ -185,7 +188,7 @@ public:
         }
     }
     // checks if vertices are present, if they are, then it creates and adds the edges to both the vertices
-    void insertUndirectedEdge(char vertex1, char vertex2)
+    void insertUndirectedEdge(char vertex1, char vertex2, int weight)
     {
         vertex *vert1, *vert2;
         vert1 = findVertex(vertex1);
@@ -201,14 +204,14 @@ public:
             return;
         }
         edge *edg1, *edg2;
-        edg1 = createEdge(vert1, vert2);
+        edg1 = createEdge(vert1, vert2, weight);
         addEdge(vert1, edg1);
-        edg2 = createEdge(vert2, vert1);
+        edg2 = createEdge(vert2, vert1, weight);
         addEdge(vert2, edg2);
         cout << "Edge has been inserted successfully between " << vertex1 << " and " << vertex2 << endl;
     }
     // inserts a directed edge between vertex 1 and vertex 2
-    void insertDirectedEdge(char vertex1, char vertex2)
+    void insertDirectedEdge(char vertex1, char vertex2, int weight)
     {
         vertex *src, *dest;
         src = findVertex(vertex1);
@@ -224,7 +227,7 @@ public:
             return;
         }
         edge *edg;
-        edg = createEdge(src, dest);
+        edg = createEdge(src, dest, weight);
         addEdge(src, edg);
         cout << "Edge has been inserted successfully from " << vertex1 << " to " << vertex2 << endl;
     }
@@ -233,7 +236,7 @@ public:
     {
         for (edge *edg = vert1->firstEdge; edg != NULL; edg = edg->nextEdge)
         {
-            if (edg->end = vert2)
+            if (edg->end == vert2)
                 return edg;
         }
     }
@@ -353,6 +356,15 @@ public:
         }
     }
 
+    void printEdgesWithWeight()
+    {
+        for (vertex *vert = firstVertex; vert != NULL; vert = vert->nextVertex)
+        {
+            for (edge *edg = vert->firstEdge; edg != NULL; edg = edg->nextEdge)
+                cout << vert->data << " ------> " << edg->end->data << " : " << edg->weight << endl;
+        }
+    }
+
     // returns the unprocessed vertices after BFS/DFS
     vertex *findUnprocessedVertex()
     {
@@ -370,6 +382,8 @@ public:
         {
             temp->isProcessed = false;
             temp->quNext = NULL;
+            temp->key = 99999;
+            temp->predcessor = NULL;
         }
     }
 
@@ -510,8 +524,13 @@ public:
         }
     }
 
-    void checkCycle()
+    void printCycles()
     {
+        if (firstVertex == NULL)
+        {
+            cout << "No vertices in the graph" << endl;
+            return;
+        }
         for (vertex *ref = firstVertex; ref != NULL; ref = ref->nextVertex)
         {
             for (edge *edg = ref->firstEdge; edg != NULL; edg = edg->nextEdge)
@@ -528,17 +547,43 @@ public:
             buck.print();
         buck.destroy();        
     }
+
+    bool isCycle()
+    {
+        for (vertex *ref = firstVertex; ref != NULL; ref = ref->nextVertex)
+        {
+            for (edge *edg = ref->firstEdge; edg != NULL; edg = edg->nextEdge)
+            {
+                LinkedList<char> list;
+                list.insert(ref->data);
+                recCheckCycle(ref, edg->end, buck, list);
+                if (buck.getCount() != 0)
+                {
+                    buck.destroy();
+                    return true;
+                }
+            }
+        } 
+    }
+
+    void prims()
+    {
+        vertex *ref = firstVertex;
+        reset();
+        ref->key = 0;
+        
+    }
 };
 int main()
 {
-    int opt = -1;
+    int opt = -2;
     char data;
     char vertex1, vertex2;
-    srand((long int)clock());
     graph g;
-    while (opt != 11)
+    int weight;
+    while (opt != -1)
     {
-        cout << "1-Insert vertex, 2-Insert Directed Edge, 3-Insert undirected Edge, 4-BFS, \n5-Rec-DFS, 6-DFS, 7-Print Vertices with edges, 8-Check Cycles, 9-Delete Edge, 10-Delete Vertex, 11-Exit: ";
+        cout << "1-Insert vertex, 2-Insert Directed Edge, 3-Insert undirected Edge, 4-BFS, 5-Rec-DFS, 6-DFS, 7-Print Vertices with edges, \n8-Check Cycles, 9-Delete Edge, 10-Delete Vertex, 11-Print vertices with edges, 12-Prims, -1-Exit: \n";
         cin >> opt;
         switch (opt)
         {
@@ -550,14 +595,16 @@ int main()
         case 2:
             cout << "Enter source and destination vertices: ";
             cin >> vertex1 >> vertex2;
-            cout << vertex1 << " " << vertex2 << endl;
-            g.insertDirectedEdge(vertex1, vertex2);
+            cout << "Enter weight: ";
+            cin >> weight;
+            g.insertDirectedEdge(vertex1, vertex2, weight);
             break;
         case 3:
             cout << "Enter the vertices: ";
             cin >> vertex1 >> vertex2;
-            cout << vertex1 << " " << vertex2 << endl;
-            g.insertUndirectedEdge(vertex1, vertex2);
+            cout << "Enter weight: ";
+            cin >> weight;
+            g.insertUndirectedEdge(vertex1, vertex2, weight);
             break;
         case 4:
             g.bfs();
@@ -572,7 +619,7 @@ int main()
             g.printVertexWithEdges();
             break;
         case 8:
-            g.checkCycle();
+            g.printCycles();
             break;
         case 9:
             cout << "Enter the vertices: ";
@@ -580,14 +627,18 @@ int main()
             cout << vertex1 << " " << vertex2 << endl;
             g.removeEdge(vertex1, vertex2);
             break;
-        // case 10:
-        //     cout << "Enter vertex: ";
-        //     // cin >> data;
-        //     data = getAlphabet();
-        //     cout << data << endl;
-        //     g.removeVertex(data);
-        //     break;    
+        case 10:
+            cout << "Enter vertex: ";
+            cin >> data;
+            g.removeVertex(data);
+            break;   
         case 11:
+            g.printEdgesWithWeight();
+            break;
+        case 12:
+            g.prims();
+            break;    
+        case -1:
             cout << "Exited" << endl;
             break;
         default:

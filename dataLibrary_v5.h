@@ -47,6 +47,7 @@ public:
         return count;
     }
 
+private:
     sllNode<T> *createNode(T data)
     {
         sllNode<T> *temp = new sllNode<T>;
@@ -54,7 +55,7 @@ public:
         temp->next = NULL;
         return temp;
     }
-private:
+
     void insertFront(sllNode<T> *newnode)
     {
         if (newnode->next != NULL)
@@ -68,11 +69,13 @@ private:
         }
         count++;
     }
+
 public:
     void insertFront(T data)
     {
         insertFront(createNode(data));
     }
+
 private:
     void insertEnd(sllNode<T> *newnode)
     {
@@ -89,6 +92,7 @@ private:
         }
         count++;
     }
+
 public:
     void insertEnd(T data)
     {
@@ -141,7 +145,7 @@ public:
         if (type == 1)
             return removeEnd();
         else
-            return removeFront();    
+            return removeFront();
     }
 
     void delFront()
@@ -164,6 +168,25 @@ public:
             delEnd();
         else
             delFront();
+    }
+
+private:
+    void reverse(sllNode<T> *currNode, sllNode<T> *prevNode)
+    {
+        if (currNode->next == NULL)
+        {
+            head = currNode;
+            currNode->next = prevNode;
+            return;
+        }
+        reverse(currNode->next, currNode);
+        currNode->next = prevNode;
+    }
+
+public:
+    void reverse()
+    {
+        reverse(head, NULL);
     }
 
     void printRev(sllNode<T> *temp)
@@ -199,8 +222,9 @@ private:
         if (temp == NULL)
             return;
         destroy(temp->next);
-        delete temp;    
+        delete temp;
     }
+
 public:
     void destroy()
     {
@@ -211,9 +235,7 @@ public:
 
     ~LinkedList()
     {
-
     }
-
 };
 
 template <typename T>
@@ -256,6 +278,7 @@ public:
             temp->key = count++;
     }
 
+private:
     bucketNode<T> *createNode(LinkedList<T> list)
     {
         bucketNode<T> *newnode = new bucketNode<T>;
@@ -264,7 +287,7 @@ public:
         newnode->key = 0;
         return newnode;
     }
-private:
+
     void insertFront(bucketNode<T> *newnode)
     {
         if (newnode->next != NULL)
@@ -278,11 +301,13 @@ private:
         }
         updateKeys();
     }
+
 public:
     void insertFront(LinkedList<T> list)
     {
         insertFront(createNode(list));
     }
+
 private:
     void insertEnd(bucketNode<T> *newnode)
     {
@@ -299,6 +324,7 @@ private:
         }
         updateKeys();
     }
+
 public:
     void insertEnd(LinkedList<T> list)
     {
@@ -347,7 +373,7 @@ public:
         if (type == 1)
             return removeEnd();
         else
-            return removeFront();    
+            return removeFront();
     }
 
     void delFront()
@@ -357,7 +383,7 @@ public:
         {
             temp->linkedList.destroy();
             delete temp;
-        }    
+        }
     }
 
     void delEnd()
@@ -383,15 +409,12 @@ public:
         for (bucketNode<T> *temp = head; temp != NULL; temp = temp->next)
             cout << temp->key << " ";
         cout << endl;
-        // return "";
     }
 
     void printWithoutIndex()
     {
         for (bucketNode<T> *temp = head; temp != NULL; temp = temp->next)
             temp->linkedList.print();
-        cout << endl;
-        // return "";
     }
 
     void printWithIndex()
@@ -401,8 +424,6 @@ public:
             cout << temp->key << " -----> ";
             temp->linkedList.print();
         }
-        cout << endl;
-        // return "";
     }
 
     void print(int type = 0)
@@ -413,7 +434,6 @@ public:
             printWithoutIndex();
         else if (type == -1)
             printIndex();
-        // return "";    
     }
 
 private:
@@ -423,8 +443,9 @@ private:
             return;
         destroy(temp->next);
         temp->linkedList.destroy();
-        delete temp;    
+        delete temp;
     }
+
 public:
     void destroy()
     {
@@ -435,7 +456,6 @@ public:
 
     ~Buckets()
     {
-
     }
 };
 
@@ -443,12 +463,11 @@ template <typename T>
 class Utilities
 {
 public:
-
     string gap(int n = 3)
     {
         for (int i = 0; i < n; i++)
             cout << endl;
-        return "";    
+        return "";
     }
 
     string dummy(int n = 3, int n2 = 2)
@@ -456,16 +475,16 @@ public:
         gap(n2);
         for (int i = 0; i < n; i++)
             cout << (char)((rand() % 25) + 65);
-        gap(n2); 
-        return "";   
+        gap(n2);
+        return "";
     }
 
-    void initializeRandom(T arr[], int size ,int lower_range = -1, int upper_range = -1)
+    void initializeRandom(T arr[], int size, int lower_range = -1, int upper_range = -1)
     {
         if (lower_range < 0)
         {
             upper_range = rand() % 30;
-            lower_range = rand () % upper_range;
+            lower_range = rand() % upper_range;
         }
 
         if (upper_range < lower_range)
@@ -473,17 +492,17 @@ public:
 
         if (upper_range == lower_range)
             upper_range += lower_range;
-            
+
         for (int i = 0; i < size; i++)
             arr[i] = rand() % (upper_range - lower_range + 1) + lower_range, rand() % 2;
     }
 
-    void initializeRandom(LinkedList<T> &list, int lower_range = -1, int upper_range = -1 ,int no_of_elem = -1)
+    void initializeRandom(LinkedList<T> &list, int lower_range = -1, int upper_range = -1, int no_of_elem = -1)
     {
         if (lower_range < 0)
         {
             upper_range = rand() % 30;
-            lower_range = rand () % upper_range;
+            lower_range = rand() % upper_range;
         }
 
         if (upper_range < lower_range)
@@ -492,25 +511,25 @@ public:
         if (upper_range == lower_range)
             upper_range += lower_range;
 
-        if (no_of_elem < 0) 
+        if (no_of_elem < 0)
         {
             srand((long int)clock());
             no_of_elem = rand() % 20;
         }
-        
+
         // sleep(1);
 
         for (int i = 0; i < no_of_elem; i++)
             list.insert(rand() % (upper_range - lower_range + 1) + lower_range, rand() % 2);
     }
 
-    void initializeRandom(Buckets<T> &buck, int lower_range = -1, int upper_range = -1 ,int no_of_elem = -1)
+    void initializeRandom(Buckets<T> &buck, int lower_range = -1, int upper_range = -1, int no_of_elem = -1)
     {
         if (lower_range < 0)
         {
-            srand((unsigned) time((0)));
+            srand((unsigned)time((0)));
             upper_range = rand() % 30;
-            lower_range = rand () % upper_range;
+            lower_range = rand() % upper_range;
         }
 
         if (upper_range < lower_range)
@@ -519,9 +538,9 @@ public:
         if (upper_range == lower_range)
             upper_range += lower_range;
 
-        if (no_of_elem < 0) 
+        if (no_of_elem < 0)
         {
-            srand((unsigned) time(0));
+            srand((unsigned)time(0));
             no_of_elem = rand() % 20;
         }
         for (int i = 0; i < no_of_elem; i++)
@@ -537,7 +556,7 @@ public:
         if (end_index <= 0)
             end_index = size;
         if (st_index < 0)
-            st_index = 0;    
+            st_index = 0;
         for (int i = st_index; i < end_index; i++)
         {
             for (int j = i + 1; j < end_index; j++)
@@ -553,7 +572,7 @@ public:
         if (end_index <= 0)
             end_index = size;
         if (st_index < 0)
-            st_index = 0;    
+            st_index = 0;
         for (int i = st_index; i < end_index; i++)
         {
             for (int j = i + 1; j < end_index; j++)
@@ -569,7 +588,7 @@ public:
         if (type == 1)
             sortAsc(arr, size, st_index, end_index);
         else
-            sortDesc(arr, size, st_index, end_index);    
+            sortDesc(arr, size, st_index, end_index);
     }
 
     void sortAsc(LinkedList<T> &list)
@@ -601,7 +620,7 @@ public:
         if (type == 1)
             sortAsc(list);
         else
-            sortDesc(list);    
+            sortDesc(list);
     }
 
     LinkedList<T> createNewCopy(LinkedList<T> list)
@@ -609,7 +628,7 @@ public:
         LinkedList<T> newList;
         for (sllNode<T> *temp = list.getHead(); temp != NULL; temp = temp->next)
             newList.insertEnd(temp->data);
-        return newList;    
+        return newList;
     }
 
     Buckets<T> createNewCopy(Buckets<T> buck)
@@ -618,7 +637,7 @@ public:
         for (bucketNode<T> *temp = buck.getHead(); temp != NULL; temp = temp->next)
         {
             newBuck.insertEnd(temp->linkedList);
-        } 
+        }
         return newBuck;
     }
 
@@ -669,11 +688,11 @@ public:
         {
             if (temp1->data != temp2->data)
                 return false;
-        } 
+        }
 
         if (temp1 != NULL || temp2 != NULL)
             return false;
-        return true;       
+        return true;
     }
 
     bool isEqual(Buckets<T> buck1, Buckets<T> buck2)
@@ -685,10 +704,10 @@ public:
         {
             if (!isEqual(temp1->linkedList, temp2->linkedList))
                 return false;
-        }  
+        }
         if (temp1 != NULL || temp2 != NULL)
             return false;
-        return true; 
+        return true;
     }
 
     bool isEqualJumbled(LinkedList<T> list1, LinkedList<T> list2)
@@ -705,7 +724,7 @@ public:
             rv = true;
         temp1.destroy();
         temp2.destroy();
-        return rv;   
+        return rv;
     }
 
     bool isPresentJumbled(Buckets<T> buck, LinkedList<T> list)
@@ -742,23 +761,22 @@ public:
     {
         for (int i = 0; i < size; i++)
             cout << arr[i] << " ";
-        cout << endl;    
+        cout << endl;
     }
 
     void printArray(LinkedList<T> list[], int no_of_elem)
     {
-        for (int i = 0; i < no_of_elem; i++)    
+        for (int i = 0; i < no_of_elem; i++)
             list[i].print();
     }
 
     void printArray(Buckets<T> buck[], int no_of_elem)
     {
-        for (int i = 0; i < no_of_elem; i++)    
+        for (int i = 0; i < no_of_elem; i++)
             buck[i].print();
     }
 
     ~Utilities()
     {
-
     }
 };

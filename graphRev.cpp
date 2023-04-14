@@ -484,7 +484,11 @@ public:
     void recCheckCycle(vertex *ref, vertex *currVertex, Buckets<char> &buck,LinkedList<char> list)
     {
         if (currVertex == NULL)
+        {
+            list.destroy();
             return;
+        }
+            
         if (currVertex == ref && !ut.isPresentJumbled(buck, list) && list.getCount() != 2)
         {
             buck.insert(list);
@@ -493,8 +497,11 @@ public:
         }
 
         if (ut.isPresent(list, currVertex->data))
+        {
+            list.destroy();
             return;
-
+        }
+    
         for (edge *edg = currVertex->firstEdge; edg != NULL; edg = edg->nextEdge)
         {
             LinkedList<char> newList = ut.createNewCopy(list);

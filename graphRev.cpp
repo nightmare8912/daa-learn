@@ -9,7 +9,7 @@ struct vertex
     bool isProcessed;
     int key;
     vertex *nextVertex, *quNext, *predcessor;
-    edge *firstEdge;
+    edge *firstEdge, *mstEdge;
 };
 struct edge
 {
@@ -17,6 +17,7 @@ struct edge
     vertex *start, *end;
     edge *nextEdge;
 };
+class graph;
 class queue
 {
 public:
@@ -52,6 +53,48 @@ public:
         count--;
         return temp;
     }
+
+    void print()
+    {
+        for (vertex *temp = head; temp != NULL; temp = temp->quNext)
+        {
+            cout << temp->data << " ";
+        }
+        cout << endl;
+    }
+
+    vertex *extractMin()
+    {
+        vertex *temp, *prev, *min, *prevMin;
+        temp = min = head;
+        prev = prevMin = NULL;
+        for (;temp != NULL; temp = temp->quNext)
+        {
+            if (temp->key < min->key)
+            {
+                min = temp;
+                prevMin = prev;
+            }
+            prev = temp;
+        }
+        if (min == head)
+            head = min->quNext;
+        else
+            prevMin->quNext = min->quNext;
+        count--;    
+        return min;            
+    }
+
+    bool isPresent(vertex *vert)
+    {
+        for (vertex *temp = head; temp != NULL; temp = temp->nextVertex)
+        {
+            if (temp->data == vert->data)
+                return true;
+        }
+        return false;
+    }
+
     // returns true if queue is empty, otherwise false
     bool isEmpty()
     {
@@ -114,13 +157,14 @@ public:
         firstVertex = NULL;
         count = 0;
     }
+
     // creates and returns a vertex
     vertex *createVertex(char data)
     {
         vertex *vert = new vertex;
         vert->data = data;
         vert->nextVertex = vert->quNext = NULL;
-        vert->firstEdge = NULL;
+        vert->firstEdge = vert->mstEdge = NULL;
         return vert;
     }
     // checks if the given vertex is already present in the graph or not, return true if present, otherwise false
@@ -190,6 +234,11 @@ public:
     // checks if vertices are present, if they are, then it creates and adds the edges to both the vertices
     void insertUndirectedEdge(char vertex1, char vertex2, int weight)
     {
+        if (vertex1 == vertex2)
+        {
+            cout << "Cannot insert edge between same vertex" << endl;
+            return;
+        }
         vertex *vert1, *vert2;
         vert1 = findVertex(vertex1);
         if (vert1 == NULL)
@@ -213,6 +262,11 @@ public:
     // inserts a directed edge between vertex 1 and vertex 2
     void insertDirectedEdge(char vertex1, char vertex2, int weight)
     {
+        if (vertex1 == vertex2)
+        {
+            cout << "Cannot insert edge between same vertex" << endl;
+            return;
+        }
         vertex *src, *dest;
         src = findVertex(vertex1);
         if (src == NULL)
@@ -382,6 +436,7 @@ public:
         {
             temp->isProcessed = false;
             temp->quNext = NULL;
+            temp->mstEdge = NULL;
             temp->key = 99999;
             temp->predcessor = NULL;
         }
@@ -503,7 +558,7 @@ public:
             return;
         }
             
-        if (currVertex == ref && !ut.isPresentJumbled(buck, list) && list.getCount() != 2)
+        if (currVertex == ref && !ut.isPresentJumbled(buck, list) && list.getCount() > 2)
         {
             buck.insert(list);
             list.destroy();
@@ -566,12 +621,70 @@ public:
         } 
     }
 
+    edge *createMSTEdge(vertex *vert1, vertex *vert2)
+    {
+        if (vert2 == NULL)
+            return NULL;
+        edge *edg = new edge;
+        edg->start = vert1;
+        edg->end = vert2;
+        edg->nextEdge = NULL;
+        return edg;
+    }
+
+    void addMSTEdge(vertex *vert, edge *edg)
+    {
+        if (edg == NULL)
+            return;
+        if (vert->mstEdge == NULL)
+            vert->mstEdge = edg;
+        else
+        {
+            edge *temp;
+            for (temp = vert->mstEdge; temp->nextEdge != NULL; temp = temp->nextEdge)
+                ;
+            temp->nextEdge = edg;
+        }
+    }
+
+    int calculateMSTCost()
+    {
+        int sum = 0;
+        for (vertex *temp = firstVertex; temp != NULL; temp = temp->nextVertex)
+        {
+            if (temp->key > 100)
+                cout << "incomplete mst" << endl;
+            else    
+                sum += temp->key;    
+        }
+        return sum;
+    }
+
     void prims()
     {
-        vertex *ref = firstVertex;
         reset();
-        ref->key = 0;
-        
+        queue q;
+        vertex *currVertex;
+        for (vertex *temp = firstVertex; temp != NULL; temp = temp->nextVertex)
+            q.enqueue(temp);
+        firstVertex->key = 0;    
+        while (!q.isEmpty())
+        {
+            currVertex = q.extractMin();
+            cout << "vertex dequeued is " << currVertex->data << "\tcost: " << currVertex->key << endl;
+            addMSTEdge(currVertex, createMSTEdge(currVertex, currVertex->predcessor));
+            for (edge *edg = currVertex->firstEdge; edg != NULL; edg = edg->nextEdge)
+            {
+                if (!q.isPresent(edg->end))
+                    continue;
+                if (edg->weight < edg->end->key)
+                {
+                    edg->end->key = edg->weight;
+                    edg->end->predcessor = currVertex;
+                }    
+            }
+        }
+        cout << "cost: " << calculateMSTCost() << endl;
     }
 };
 int main()

@@ -15,6 +15,10 @@ class Buckets;
 template <typename T>
 class Utilities;
 
+/*
+    sll Node is used to implement the singly linked list
+*/
+
 template <typename T>
 struct sllNode
 {
@@ -27,6 +31,11 @@ class LinkedList
 {
 
 private:
+    /*
+        head represents the first element in the list
+        count represents the number of elements in the list
+    */
+
     sllNode<T> *head;
     int count;
 
@@ -48,6 +57,10 @@ public:
     }
 
 private:
+    /*
+        createNode creates a new node, initializes it with given data and returns the node
+    */
+
     sllNode<T> *createNode(T data)
     {
         sllNode<T> *temp = new sllNode<T>;
@@ -55,6 +68,13 @@ private:
         temp->next = NULL;
         return temp;
     }
+
+    /*
+        this function will insert the node provided to it in the list (AT THE START)
+        it does so after making sure that the node provided to it is not used by other list
+        , it does so by checking its next value, if its not NULL, it will create a fresh node
+        it is done to avoid conficts between the two lists
+    */
 
     void insertFront(sllNode<T> *newnode)
     {
@@ -71,12 +91,24 @@ private:
     }
 
 public:
+    /*
+        it will call the above two functions, it creates a new node with provided data, and inserts it
+        in the list (AT THE START), by calling the above function
+    */
+
     void insertFront(T data)
     {
         insertFront(createNode(data));
     }
 
 private:
+    /*
+        this function will insert the node provided to it in the list (AT THE END)
+        it does so after making sure that the node provided to it is not used by other list
+        , it does so by checking its next value, if its not NULL, it will create a fresh node
+        it is done to avoid conficts between the two lists
+    */
+
     void insertEnd(sllNode<T> *newnode)
     {
         if (newnode->next != NULL)
@@ -94,20 +126,30 @@ private:
     }
 
 public:
+    /*
+        it will call the above two functions, it creates a new node with provided data, and inserts it
+        in the list (AT THE END), by calling the above function
+    */
+
     void insertEnd(T data)
     {
         insertEnd(createNode(data));
     }
-
-    void insert(sllNode<T> *temp, int type = 1)
-    {
-        // sllNode<T> *newnode = createNode(temp->data);
-        if (type == 1)
-            insertEnd(temp);
-        else
-            insertFront(temp);
-    }
-
+    // private:
+    // void insert(sllNode<T> *temp, int type = 1)
+    // {
+    //     // sllNode<T> *newnode = createNode(temp->data);
+    //     if (type == 1)
+    //         insertEnd(temp);
+    //     else
+    //         insertFront(temp);
+    // }
+public:
+    /*
+        this function is provided for convenience, its task is to insert the given data in
+        the list, the position of insertion depends on the value of type provided,
+        if no value is provided, it will insert at the end, otherwise it will insert at the start
+    */
     void insert(T data, int type = 1)
     {
         if (type == 1)
@@ -115,6 +157,10 @@ public:
         else
             insertFront(data);
     }
+
+    /*
+        this function will REMOVE the first element from the list and return it
+    */
 
     sllNode<T> *removeFront()
     {
@@ -126,6 +172,10 @@ public:
         count--;
         return temp;
     }
+
+    /*
+        this function will REMOVE the last element from the list and return it
+    */
 
     sllNode<T> *removeEnd()
     {
@@ -140,6 +190,12 @@ public:
         return temp2;
     }
 
+    /*
+        this function is provided for convenience, its task is to REMOVE the element
+        from the list, the position of REMOVAL depends on the value of type provided,
+        if no value is provided, it will REMOVE from the end, otherwise it will REMOVE from the start
+    */
+
     sllNode<T> *remove(int type = 1)
     {
         if (type == 1)
@@ -148,6 +204,10 @@ public:
             return removeFront();
     }
 
+    /*
+        this function will REMOVE and DELETE the first element from the LIST AND MEMORY and return it
+    */
+
     void delFront()
     {
         sllNode<T> *temp = removeFront();
@@ -155,12 +215,22 @@ public:
             delete temp;
     }
 
+    /*
+        this function will REMOVE and DELETE the last element from the LIST AND MEMORY and return it
+    */
+
     void delEnd()
     {
         sllNode<T> *temp = removeEnd();
         if (temp != NULL)
             delete temp;
     }
+
+    /*
+       this function is provided for convenience, its task is to REMOVE AND DELETE the element
+       from the LIST AND MEMORY, the position of REMOVAL depends on the value of type provided,
+       if no value is provided, it will REMOVE from the end, otherwise it will REMOVE from the start
+   */
 
     void del(int type = 1)
     {
@@ -679,6 +749,11 @@ public:
             buck1.insertFront(temp->linkedList);
     }
 
+    // void removeDuplicates(LinkedList<T> &list)
+    // {
+    //     for (sllNode<T> *head)
+    // }
+
     bool isEqual(LinkedList<T> list1, LinkedList<T> list2)
     {
         if (list1.getCount() != list2.getCount())
@@ -755,6 +830,20 @@ public:
                 return true;
         }
         return false;
+    }
+
+    void insertNonDuplicateElements(LinkedList<T> &list, T data)
+    {
+        if (isPresent(list, data))
+            return;
+        list.insert(data);    
+    }
+
+    void insertNonDuplicateElements(Buckets<T> &buck, LinkedList<T> list)
+    {
+        if (isPresent(buck, list))
+            return;
+        buck.insert(list);    
     }
 
     void printArray(int arr[], int size)

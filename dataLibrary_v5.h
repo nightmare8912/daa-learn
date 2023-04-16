@@ -144,20 +144,43 @@ public:
     //     else
     //         insertFront(temp);
     // }
+private:
+    void insertPos(sllNode<T> *newnode, int pos)
+    {
+        sllNode<T> *prev, *curr;
+        // prev = NULL; curr = head;
+        int i = 1;
+        for (prev = NULL, curr = head; curr != NULL && i < pos; prev = curr, curr = curr->next, i++)
+            ;
+        prev->next = newnode;
+        newnode->next = curr;
+        count ++;
+    }    
 public:
     /*
         this function is provided for convenience, its task is to insert the given data in
         the list, the position of insertion depends on the value of type provided,
         if no value is provided, it will insert at the end, otherwise it will insert at the start
     */
+
     void insert(T data, int type = 1)
     {
         if (type == 1)
             insertEnd(data);
         else
-            insertFront(data);
+            insertFront(data);        
     }
 
+    void insertPos(T data, int pos)
+    {
+        if (pos <= 1)
+            insertFront(data);
+        else if (pos > count)
+            insertEnd(data);
+        else
+            insertPos(createNode(data), pos);
+    }
+    
     /*
         this function will REMOVE the first element from the list and return it
     */
@@ -188,6 +211,35 @@ public:
         temp1->next = NULL;
         count--;
         return temp2;
+    }
+
+    sllNode<T> *removePos(int pos)
+    {
+        if (head == NULL)
+            return NULL;
+        if (pos <= 1)
+            return removeFront();
+        else if (pos >= count)
+            return removeEnd();
+        else
+        {
+            sllNode<T> *prevN, *currN, *nextN;
+            prevN = NULL; currN = head; nextN = currN->next;
+            int i = 1;
+            while (currN != NULL && i < pos)
+            {
+                i++;
+                prevN = currN;
+                // currN = nextN;
+                // nextN = nextN->next;
+                currN = currN->next;
+            }
+
+            prevN->next = currN->next;
+            currN->next = NULL;
+            count--;
+            return currN;
+        }        
     }
 
     /*
@@ -238,6 +290,29 @@ public:
             delEnd();
         else
             delFront();
+    }
+
+    void delPos(int pos)
+    {
+        delete removePos(pos);
+    }
+
+    sllNode<T> *findAndRemove(T data)
+    {
+        int pos = 1;
+        for (sllNode<T> *temp = head; temp != NULL; temp = temp->next, pos++)
+        {
+            if (temp->data == data)
+                return removePos(pos);
+        }
+        return NULL;
+    }
+
+    void findAndDelete(T data)
+    {
+        sllNode<T> *temp = findAndRemove(data);
+        if (temp != NULL)
+            delete temp;
     }
 
 private:
@@ -749,10 +824,30 @@ public:
             buck1.insertFront(temp->linkedList);
     }
 
-    // void removeDuplicates(LinkedList<T> &list)
-    // {
-    //     for (sllNode<T> *head)
-    // }
+    int getOccurences(LinkedList<T> list, T data)
+    {
+        int count = 0;
+        for (sllNode<T> *temp = list.getHead(); temp != NULL; temp = temp->next)
+        {
+            if (temp->data == data)
+                count++;
+        }
+        return count;
+    }
+
+    void removeDuplicates(LinkedList<T> &list)
+    {
+        sllNode<T> *newTemp;
+        for (sllNode<T> *temp = list.getHead(); temp != NULL; temp = temp->next)
+        {
+            if (getOccurences(list, temp->data) > 1)
+            {
+                newTemp = temp->next;
+                list.findAndDelete(temp->data);
+                temp = newTemp;
+            }
+        }
+    }
 
     bool isEqual(LinkedList<T> list1, LinkedList<T> list2)
     {

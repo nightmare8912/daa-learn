@@ -145,6 +145,13 @@ public:
     //         insertFront(temp);
     // }
 private:
+
+    /*
+        this function will insert the given node at the given position, it is made private to avoid
+        runtime errors that may occur due to invalid positions provided by the user, and also to avoid
+        a node that is being used by other  linked list to be inserted
+    */
+
     void insertPos(sllNode<T> *newnode, int pos)
     {
         sllNode<T> *prev, *curr;
@@ -170,6 +177,13 @@ public:
         else
             insertFront(data);        
     }
+
+    /*
+        this function will insert the given value at the position provided by the user, if the provided
+        pos is <= 1, it will call insertFront() function, similarly it will call insertEnd() function,
+        if the position is greater than the number of elements, however if the position is between 1 and 
+        no of elements in list, it will call the insertPos function()
+    */
 
     void insertPos(T data, int pos)
     {
@@ -212,6 +226,12 @@ public:
         count--;
         return temp2;
     }
+
+    /*
+        this function will REMOVE the element at the given position from the list, and return it
+        if however, the value of pos is <= 1, it will call the removeFront() function, and similarly,
+        if the value of pos is >= no_of_elements in the list, it will call removeEnd() function
+    */
 
     sllNode<T> *removePos(int pos)
     {
@@ -292,10 +312,19 @@ public:
             delFront();
     }
 
+    /*
+        this function will REMOVE and DELETE the element at the given position from the list
+    */
+
     void delPos(int pos)
     {
         delete removePos(pos);
     }
+
+    /*
+        this function will find if the element provided is in the list, if found, it removes it from the list
+        and returns it, if not found, it returns NULL
+    */
 
     sllNode<T> *findAndRemove(T data)
     {
@@ -307,6 +336,10 @@ public:
         }
         return NULL;
     }
+
+    /*
+        this function will delete the elements from the list and the memory
+    */
 
     void findAndDelete(T data)
     {
@@ -329,10 +362,19 @@ private:
     }
 
 public:
+
+    /*
+        this function will call the above function, which will simply reverse the list, it does so by using
+        recursion
+    */
     void reverse()
     {
         reverse(head, NULL);
     }
+
+    /*
+        this function will print the list in reverse order from the provided node, it uses recursion to do it
+    */
 
     void printRev(sllNode<T> *temp)
     {
@@ -341,6 +383,10 @@ public:
         printRev(temp->next);
         cout << temp->data << " ";
     }
+
+    /*
+        this function will print the entire list in reverse order
+    */
 
     void printRev()
     {
@@ -362,6 +408,13 @@ public:
     }
 
 private:
+
+    /*
+        this function will delete the elements from the linked list, it does so by using recursion,
+        however it is made private to avoid runtime errors, as the list might not be deleted
+        properly if the value of temp != head, so it is called by another inbuilt function
+    */
+
     void destroy(sllNode<T> *temp)
     {
         if (temp == NULL)
@@ -371,12 +424,21 @@ private:
     }
 
 public:
+
+    /*
+        this function will call the above function, which will destroy the entire linkedList
+    */
+
     void destroy()
     {
         destroy(head);
         head = NULL;
         count = 0;
     }
+
+    /*
+        destructor 
+    */
 
     ~LinkedList()
     {

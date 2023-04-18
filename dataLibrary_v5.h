@@ -318,7 +318,9 @@ public:
 
     void delPos(int pos)
     {
-        delete removePos(pos);
+        sllNode<T> *temp = removePos(pos);
+        if (temp != NULL)
+            delete temp;
     }
 
     /*

@@ -1,6 +1,6 @@
 #include <iostream>
 #include <time.h>
-#include "dataLibrary_v5.h"
+#include <dataLibrary_v5.h>
 using namespace std;
 struct edge;
 struct vertex
@@ -57,9 +57,9 @@ public:
         return temp;
     }
 
-    T *extractMin(vertex *vert)
+    vertex *extractMinVert()
     {
-        T *temp, *prev, *min, *prevMin;
+        vertex *temp, *prev, *min, *prevMin;
         temp = min = head;
         prev = prevMin = NULL;
         for (; temp != NULL; temp = temp->quNext)
@@ -79,9 +79,9 @@ public:
         return min;
     }
 
-    T *extractMin(edge *edg)
+    edge *extractMinEdge()
     {
-        T *temp, *prev, *min, *prevMin;
+        edge *temp, *prev, *min, *prevMin;
         temp = min = head;
         prev = prevMin = NULL;
         for (; temp != NULL; temp = temp->quNext)
@@ -630,23 +630,24 @@ public:
         buck.destroy();
     }
 
-    bool isCycle()
-    {
-        for (vertex *ref = firstVertex; ref != NULL; ref = ref->nextVertex)
-        {
-            for (edge *edg = ref->firstEdge; edg != NULL; edg = edg->nextEdge)
-            {
-                LinkedList<char> list;
-                list.insert(ref->data);
-                recCheckCycle(ref, edg->end, buck, list);
-                if (buck.getCount() != 0)
-                {
-                    buck.destroy();
-                    return true;
-                }
-            }
-        }
-    }
+    // bool isCycle()
+    // {
+    //     for (vertex *ref = firstVertex; ref != NULL; ref = ref->nextVertex)
+    //     {
+    //         for (edge *edg = ref->firstEdge; edg != NULL; edg = edg->nextEdge)
+    //         {
+    //             LinkedList<char> list;
+    //             list.insert(ref->data);
+    //             recCheckCycle(ref, edg->end, buck, list);
+    //             if (buck.getCount() != 0)
+    //             {
+    //                 buck.destroy();
+    //                 return true;
+    //             }
+    //         }
+    //     }
+    //     return false;
+    // }
 
     edge *createMSTEdge(vertex *vert1, vertex *vert2)
     {
@@ -697,7 +698,7 @@ public:
         firstVertex->key = 0;
         while (!q.isEmpty())
         {
-            currVertex = q.extractMin(firstVertex);
+            currVertex = q.extractMinVert();
             cout << "vertex dequeued is " << currVertex->data << "\tcost: " << currVertex->key << endl;
             addMSTEdge(currVertex, createMSTEdge(currVertex, currVertex->predcessor));
             for (edge *edg = currVertex->firstEdge; edg != NULL; edg = edg->nextEdge)
@@ -758,7 +759,51 @@ public:
 
         while (!q.isEmpty())
         {
-            edge *edg = q.extractMin(edg);
+            edge *edg = q.extractMinEdge();
+            int index1, index2;
+            index1 = findList(list, edg->end->data);
+            index2 = findList(list, edg->start->data);
+            if (index1 != index2)
+            {
+                ut.append(list[index1], list[index2]);
+                // list[index2].destroy();
+                ut.removeDuplicates(list[index1]);
+                mst_cost += edg->weight;
+                cout << "new edge was added between " << edg->start->data << " and " << edg->end->data << "\tcost: " << edg->weight << endl;
+
+            }
+        }
+        for (int i = 0; i < count; i++)
+            list[i].print();
+        cout << "cost: " << mst_cost <<endl;
+        for (i = 0; i < count; i++)
+            list[i].destroy();
+    }
+
+    void kruskals2()
+    {
+        queue<edge> q;
+        resetEdge();
+        for (vertex *temp = firstVertex; temp != NULL; temp = temp->nextVertex)
+        {
+            for (edge *edg = temp->firstEdge; edg != NULL; edg = edg->nextEdge)
+            {
+                if (!q.isPresent(edg))
+                    q.enqueue(edg);
+            }
+        }
+        LinkedList<char> list[count];
+
+        int i = 0;
+
+        for (vertex *temp = firstVertex; temp != NULL; temp = temp->nextVertex, i++)
+            list[i].insert(temp->data);
+
+        int mst_cost = 0;
+
+        while (!q.isEmpty())
+        {
+            edge *edg = q.extractMinEdge();
             int index1, index2;
             index1 = findList(list, edg->end->data);
             index2 = findList(list, edg->start->data);
@@ -766,46 +811,75 @@ public:
             {
                 ut.append(list[index1], list[index2]);
                 list[index2].destroy();
-                ut.removeDuplicates(list[index1]);
+                // ut.removeDuplicates(list[index1]);
                 mst_cost += edg->weight;
                 cout << "new edge was added between " << edg->start->data << " and " << edg->end->data << "\tcost: " << edg->weight << endl;
+
             }
         }
+        for (int i = 0; i < count; i++)
+            list[i].print();
         cout << "cost: " << mst_cost <<endl;
         for (i = 0; i < count; i++)
             list[i].destroy();
     }
 };
+
+char getAlp()
+{
+    return (rand() % 26 + 65); 
+}
+
+int getNum()
+{
+    return rand() % 14;
+}
+
 int main()
 {
     int opt = -2;
     char data;
     char vertex1, vertex2;
+    srand((long int)clock());
     graph g;
     int weight;
+    int counter = 0;
     while (opt != -1)
     {
+        counter++;
         cout << "1-Insert vertex, 2-Insert Directed Edge, 3-Insert undirected Edge, 4-BFS, 5-Rec-DFS, 6-DFS, \n7-Print Vertices with edges, 8-Check Cycles, 9-Delete Edge, 10-Delete Vertex, \n11-Print vertices with edges, 12-Prims, 13-Kruskals, -1-Exit: \n";
-        cin >> opt;
+        // cin >> opt;
+        // if (counter < 3000)
+            // opt = getNum();
+        // else
+            cin >> opt;
+        cout << opt << "\t" << counter <<endl;
         switch (opt)
         {
         case 1:
             cout << "Enter vertex: ";
             cin >> data;
+            // data = getAlp();
             g.insertVertex(g.createVertex(data));
             break;
         case 2:
             cout << "Enter source and destination vertices: ";
             cin >> vertex1 >> vertex2;
+            // vertex1 = getAlp();
+            // vertex2 = getAlp();
             cout << "Enter weight: ";
             cin >> weight;
+            // weight = getNum();
             g.insertDirectedEdge(vertex1, vertex2, weight);
             break;
         case 3:
             cout << "Enter the vertices: ";
             cin >> vertex1 >> vertex2;
+            // vertex1 = getAlp();
+            // vertex2 = getAlp();
             cout << "Enter weight: ";
             cin >> weight;
+            // weight = getNum();
             g.insertUndirectedEdge(vertex1, vertex2, weight);
             break;
         case 4:
@@ -823,17 +897,19 @@ int main()
         case 8:
             g.printCycles();
             break;
-        case 9:
-            cout << "Enter the vertices: ";
-            cin >> vertex1 >> vertex2;
-            cout << vertex1 << " " << vertex2 << endl;
-            g.removeEdge(vertex1, vertex2);
-            break;
-        case 10:
-            cout << "Enter vertex: ";
-            cin >> data;
-            g.removeVertex(data);
-            break;
+        // case 9:
+        //     cout << "Enter the vertices: ";
+        //     // cin >> vertex1 >> vertex2;
+        //     vertex1 = getAlp();
+        //     vertex2 = getAlp();
+        //     cout << vertex1 << " " << vertex2 << endl;
+        //     g.removeEdge(vertex1, vertex2);
+        //     break;
+        // case 10:
+        //     cout << "Enter vertex: ";
+        //     cin >> data;
+        //     g.removeVertex(data);
+        //     break;
         case 11:
             g.printEdgesWithWeight();
             break;
@@ -843,6 +919,9 @@ int main()
         case 13:
             g.kruskals();
             break;
+        case 14:
+            g.kruskals2();
+            break;    
         case -1:
             cout << "Exited" << endl;
             break;

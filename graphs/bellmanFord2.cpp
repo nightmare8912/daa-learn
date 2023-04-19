@@ -1,12 +1,10 @@
-#include <dataLibrary_v5.h>
-
-// This code is not working yet
+#include "dataLibrary_v5.h"
 
 struct edge
 {
     int from, to, weight;
     bool isProcessed;
-    edge() : from(-1), to(-1), weight(9999), isProcessed(false) {}
+    edge() : from(-1), to(-1), weight(9999), isProcessed(true) {}
     edge(int from, int to, int weight) : from(from), to(to), weight(weight), isProcessed(false) {}
 };
 
@@ -90,13 +88,17 @@ private:
         }
     }
 
-    edge findNextEdge(int i)
+    edge findNextEdge(int j)
     {
         sllNode<edge> *temp;
-        for (temp = vertices[i].list.getHead(); temp != NULL; temp = temp->next)
+        for (temp = vertices[j].list.getHead(); temp != NULL; temp = temp->next)
         {
             if (!temp->data.isProcessed)
-                return temp->data;
+            {
+            temp->data.isProcessed = true;
+            return temp->data;
+}
+               
         }
         edge empty;
         return empty;
@@ -124,22 +126,21 @@ public:
         for (int i = 0; i < count - 1; i++)
         {
             resetEdges();
-            for (int j = 0; j < count; j--)
+            for (int j = 0; j < count; j++)
             {
-                int k = vertices[i].list.getCount();
+//                int k = vertices[i].list.getCount();
                 while (true)
                 {
                     edge edg = findNextEdge(j);
-                    edg.isProcessed = true;
                     if (edg.from == -1)
-                        break;
+                        break;    
                     relax(j, edg.to);
                 }
-            }  
-        }
+            }
 
+        }
         resetEdges();
-        for (int j = 0; j < count; j--)
+        for (int j = 0; j < count; j++)
         {
             while (true)
             {
@@ -147,11 +148,10 @@ public:
                 if (edg.from == -1)
                     break;
                 if (relax(j, edg.to))
-                    return false;
-                edg.isProcessed = true;    
+                    return false;  
             }
         }
-        return true; 
+        return true;
     }
 };
 
@@ -176,8 +176,8 @@ int main()
     }
     g.print();
     if (g.bellmanFord())
-        cout << "success" << endl;
+        g.printGraph();
     else
-        cout << "failure" << endl;
-    g.printGraph();        
+        cout << "Could not find the values due to negative weight cycle" << endl;      
 }
+

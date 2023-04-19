@@ -7,9 +7,6 @@ template <typename T>
 class LinkedList;
 
 template <typename T>
-class Tree;
-
-template <typename T>
 class Buckets;
 
 template <typename T>
@@ -207,6 +204,8 @@ public:
         head = head->next;
         temp->next = NULL;
         count--;
+        if (count == 0)
+        	head = NULL;
         return temp;
     }
 
@@ -218,12 +217,21 @@ public:
     {
         if (head == NULL)
             return NULL;
-        sllNode<T> *temp1, *temp2;
+        sllNode<T> *temp1, *temp2;    
+        if (count == 1)
+        {
+        	temp2 = head; 
+			goto end; 
+		}
+			
         for (temp1 = head; temp1->next->next != NULL; temp1 = temp1->next)
             ;
         temp2 = temp1->next;
         temp1->next = NULL;
-        count--;
+    end:
+		count--;
+		if (count == 0)
+        	head = NULL;
         return temp2;
     }
 
@@ -258,6 +266,8 @@ public:
             prevN->next = currN->next;
             currN->next = NULL;
             count--;
+            if (count == 0)
+            	head = NULL;
             return currN;
         }        
     }
@@ -349,6 +359,86 @@ public:
         if (temp != NULL)
             delete temp;
     }
+    
+    int getPos(T data)
+    {
+    	int pos = 1;
+    	for (sllNode<T> *temp = head; temp != NULL; temp = temp->next, pos++)
+    	{
+    		if (temp->data == data)
+    			return pos;
+		}
+		return -1;
+	}
+	
+	T getElementAt(int pos)
+	{
+		if (pos == 1 || pos > count)
+			return head->data;
+		else
+		{
+			int i = 1;
+			for (sllNode<T> *temp = head; temp != NULL; temp = temp->next, i++)
+			{
+				if (i == pos)
+					return temp->data;
+			}	
+		}	 	
+	}
+		
+	int getMinPos()
+	{
+		if (head == NULL)
+			return -1;
+		int min = head->data, minPos = 1;
+		int currPos = 1;
+		for (sllNode<T> *temp = head; temp != NULL; temp = temp->next, currPos++)
+		{
+			if (temp->data < min)
+			{
+				min = temp->data;
+				minPos = currPos;
+			}
+		}
+		return minPos;
+	}
+	
+	int getMaxPos()
+	{
+		if (head == NULL)
+			return -1;
+		int max = head->data, maxPos = 1;
+		int currPos = 1;
+		for (sllNode<T> *temp = head; temp != NULL; temp = temp->next, currPos++)
+		{
+			if (temp->data > max)
+			{
+				max = temp->data;
+				maxPos = currPos;
+			}
+		}
+		return maxPos;
+	}
+	
+	T getMinData()
+	{
+		return getElementAt(getMinPos());
+	}
+	
+	T getMaxData()
+	{
+		return getElementAt(getMaxPos());
+	}
+		
+	sllNode<T> *extractMin()
+	{
+		return removePos(getMinPos());
+	}
+	
+	sllNode<T> *extractMax()
+	{
+		return removePos(getMaxPos());
+	}
 
 private:
     void reverse(sllNode<T> *currNode, sllNode<T> *prevNode)
@@ -371,6 +461,8 @@ public:
     */
     void reverse()
     {
+    	if (head == NULL)
+    		return;
         reverse(head, NULL);
     }
 

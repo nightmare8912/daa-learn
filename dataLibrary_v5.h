@@ -385,6 +385,60 @@ public:
 			}	
 		}	 	
 	}
+		
+	int getMinPos()
+	{
+		if (head == NULL)
+			return -1;
+		int min = head->data, minPos = 1;
+		int currPos = 1;
+		for (sllNode<T> *temp = head; temp != NULL; temp = temp->next, currPos++)
+		{
+			if (temp->data < min)
+			{
+				min = temp->data;
+				minPos = currPos;
+			}
+		}
+		return minPos;
+	}
+	
+	int getMaxPos()
+	{
+		if (head == NULL)
+			return -1;
+		int max = head->data, maxPos = 1;
+		int currPos = 1;
+		for (sllNode<T> *temp = head; temp != NULL; temp = temp->next, currPos++)
+		{
+			if (temp->data > max)
+			{
+				max = temp->data;
+				maxPos = currPos;
+			}
+		}
+		return maxPos;
+	}
+	
+	T getMinData()
+	{
+		return getElementAt(getMinPos());
+	}
+	
+	T getMaxData()
+	{
+		return getElementAt(getMaxPos());
+	}
+		
+	sllNode<T> *extractMin()
+	{
+		return removePos(getMinPos());
+	}
+	
+	sllNode<T> *extractMax()
+	{
+		return removePos(getMaxPos());
+	}
 
 private:
     void reverse(sllNode<T> *currNode, sllNode<T> *prevNode)

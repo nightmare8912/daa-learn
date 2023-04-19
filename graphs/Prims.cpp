@@ -147,6 +147,7 @@ public:
             if (index1 == index2)
                 continue;
             ut.append(list[index1], list[index2]);
+            list[index2].destroy();
             min_cost += edg.weight;
             cout << "An edge was added between " << edg.from << " and " << edg.to <<" with weight " << edg.weight <<endl; 
             processComplementaryEdge(edg.from, edg.to);

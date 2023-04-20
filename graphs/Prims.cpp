@@ -1,5 +1,8 @@
 #include <dataLibrary_v5.h>
 
+// only insert(), getHead(), getCount(), getElementAt() and getNodeAt() functions from the linked list are used
+// and only the append() function from utilities is used from the header file
+
 struct edge
 {
     int from, to, weight;
@@ -18,7 +21,7 @@ class Graph
 {
 private:
     vertex *v;
-    int count, no_of_edges;
+    int count, unprocessed_edges, no_of_edges;
 
     void printList(LinkedList<edge> list)
     {
@@ -32,6 +35,7 @@ public:
         v = new vertex[count];
         this->count = count;
         no_of_edges = 0;
+        unprocessed_edges = 0;
     }
 
     void initialize(int src)
@@ -61,6 +65,7 @@ public:
             if (temp->data.to == from)
             {
                 temp->data.isProcessed = true;
+                unprocessed_edges--;
                 return;
             }
         }
@@ -85,8 +90,8 @@ public:
             }
         }
         sllNode<edge> *temp = v[minPresentIn].list.getNodeAt(minPresentAt);
-        no_of_edges--;
         temp->data.isProcessed = true;
+        unprocessed_edges--;
         return temp->data;
     } 
 
@@ -138,19 +143,19 @@ public:
             list[i].insert(v[i]);
         int min_cost = 0;
         printLol();
-        while (no_of_edges > 0)
+        unprocessed_edges = no_of_edges;
+        while (unprocessed_edges > 0)
         {
             edge edg = findMin();
             int index1 = findSLLIndex(list, edg.from);
             int index2 = findSLLIndex(list, edg.to);
-            // cout << "index1: " << index1 << "\tindex2: " << index2 << endl;
             if (index1 == index2)
                 continue;
             ut.append(list[index1], list[index2]);
             list[index2].destroy();
             min_cost += edg.weight;
             cout << "An edge was added between " << edg.from << " and " << edg.to <<" with weight " << edg.weight <<endl; 
-            processComplementaryEdge(edg.from, edg.to);
+            // processComplementaryEdge(edg.from, edg.to);
         }  
         cout << "min_cost = " << min_cost << endl;        
     }   
@@ -165,13 +170,14 @@ int main()
     Graph g(n);
     for (int i = 0; i < n; i++)
     {
-        cout << "Enter dest for vertex " << i << ": ";
+        cout << "Enter dest for vertex(-1 to stop) " << i << ": ";
         cin >> to;
         if (to == -1)
             continue;
         if (to >= n)
         {
-            cout << "vertex " << to << " was not found in the graph" << endl;\
+            cout << "vertex " << to << " was not found in the graph" << endl;
+            i--;
             continue;
         }        
         cout << "Enter weight: ";
@@ -180,6 +186,5 @@ int main()
         g.addEdge(to, i, weight);
         i--;
     }
-
     g.prims();
 }

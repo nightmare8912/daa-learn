@@ -132,15 +132,7 @@ public:
     {
         insertEnd(createNode(data));
     }
-    // private:
-    // void insert(sllNode<T> *temp, int type = 1)
-    // {
-    //     // sllNode<T> *newnode = createNode(temp->data);
-    //     if (type == 1)
-    //         insertEnd(temp);
-    //     else
-    //         insertFront(temp);
-    // }
+    
 private:
 
     /*
@@ -258,8 +250,6 @@ public:
             {
                 i++;
                 prevN = currN;
-                // currN = nextN;
-                // nextN = nextN->next;
                 currN = currN->next;
             }
 
@@ -360,6 +350,11 @@ public:
             delete temp;
     }
     
+    /*
+    	this function will get the position of the given element from the list, it returns the position of the first occurence	
+    	, if the element if not in the list, it returns -1
+    */
+    
     int getPos(T data)
     {
     	int pos = 1;
@@ -370,21 +365,37 @@ public:
 		}
 		return -1;
 	}
+	/*
+    	it will find and return the node at the given position, however if the position value provided lies outside
+    	the limit of (1, count), it returns the head
+    */
 	
-	T getElementAt(int pos)
+	sllNode<T> *getNodeAt(int pos)
 	{
-		if (pos == 1 || pos > count)
-			return head->data;
+		if (pos <= 1 || pos > count)
+			return head;
 		else
 		{
 			int i = 1;
 			for (sllNode<T> *temp = head; temp != NULL; temp = temp->next, i++)
 			{
 				if (i == pos)
-					return temp->data;
+					return temp;
 			}	
-		}	 	
+		}
 	}
+	/*
+    	it will return the data, instead of the node, it calls the above function to implement itself	
+    */
+	
+	T getElementAt(int pos)
+	{
+		return getNodeAt(pos)->data;	 	
+	}
+	
+	/*
+    	it will find and return the position of the minimum element in the list, if however the list if empty, it returns -1	
+    */	
 		
 	int getMinPos()
 	{
@@ -402,6 +413,9 @@ public:
 		}
 		return minPos;
 	}
+	/*
+    	it will find the position of the maximum element in the list and return it, returns -1 if list if empty	
+    */
 	
 	int getMaxPos()
 	{
@@ -420,20 +434,36 @@ public:
 		return maxPos;
 	}
 	
+	/*
+    	it returns the minimum value in the list	
+    */	
+	
 	T getMinData()
 	{
 		return getElementAt(getMinPos());
 	}
 	
+	/*
+    	it returns the maximum value in the list	
+    */
+	
 	T getMaxData()
 	{
 		return getElementAt(getMaxPos());
 	}
+	
+	/*
+    	it removes the minumum value from the list and returns it	
+    */
 		
 	sllNode<T> *extractMin()
 	{
 		return removePos(getMinPos());
 	}
+	
+	/*
+    	it extracts the maximum value from the list and returns it	
+    */
 	
 	sllNode<T> *extractMax()
 	{
@@ -487,6 +517,11 @@ public:
         printRev(head);
         cout << endl;
     }
+    
+    /*
+    	this function will print the entire list, if no parameters are provided, it prints the list in normal order,
+		if however, the value of parameter is provided, it will print the list in reverse	
+    */
 
     void print(int type = 1)
     {
@@ -1120,3 +1155,4 @@ public:
     {
     }
 };
+

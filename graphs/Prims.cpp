@@ -1,9 +1,12 @@
 #include <dataLibrary_v5.h>
 
+// only insert(), getElementAt(), getNodeAt(), getCount(), getHead() functions from the LinkedList<> class present
+// in the above library are used
+
 struct edge
 {
     int from, to, weight;
-    edge() : from(-1) {}
+    edge() {}
     edge(int from, int to, int weight) : from(from), to(to), weight(weight) {}
 };
 
@@ -37,19 +40,9 @@ public:
                 minIndex = i;
             }
         }
-        cout << "Vertex returned: " << qList.getNodeAt(minIndex)->data.data << "\t" << qList.getNodeAt(minIndex)->data.distance << endl;
+        // cout << "Vertex returned: " << qList.getNodeAt(minIndex)->data.data << "\t" << qList.getNodeAt(minIndex)->data.distance << endl;
         qList.getNodeAt(minIndex)->data.isProcessed = true;
         return qList.getNodeAt(minIndex);      
-    }
-
-    bool isPresent(int vert)
-    {
-        for (int i = 1; i < qList.getCount() + 1; i++)
-        {
-            if (vert == qList.getElementAt(i).data)
-                return true;
-        }
-        return false;
     }
 
     sllNode<vertex> *find(int data)
@@ -70,11 +63,6 @@ public:
                 return false;
         }
         return true;
-    }
-
-    bool isEmpty()
-    {
-        return qList.getCount() == 0;
     }
 };
 

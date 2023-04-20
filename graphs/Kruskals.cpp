@@ -53,9 +53,9 @@ public:
 
     void addEdge(int from, int to, int weight)
     {
-        edge newEdge(from, to, weight);
-        v[from].list.insert(newEdge);
-        no_of_edges++;
+        v[from].list.insert(edge(from, to, weight));
+        v[to].list.insert(edge(to, from, weight));
+        no_of_edges += 2;
     }
 
     void processComplementaryEdge(int from, int to)
@@ -168,23 +168,38 @@ int main()
     cout << "Enter no of vertices: ";
     cin >> n;
     Graph g(n);
-    for (int i = 0; i < n; i++)
-    {
-        cout << "Enter dest for vertex(-1 to stop) " << i << ": ";
-        cin >> to;
-        if (to == -1)
-            continue;
-        if (to >= n)
-        {
-            cout << "vertex " << to << " was not found in the graph" << endl;
-            i--;
-            continue;
-        }        
-        cout << "Enter weight: ";
-        cin >> weight;
-        g.addEdge(i, to, weight);
-        g.addEdge(to, i, weight);
-        i--;
-    }
+    // for (int i = 0; i < n; i++)
+    // {
+    //     cout << "Enter dest for vertex(-1 to stop) " << i << ": ";
+    //     cin >> to;
+    //     if (to == -1)
+    //         continue;
+    //     if (to >= n)
+    //     {
+    //         cout << "vertex " << to << " was not found in the graph" << endl;
+    //         i--;
+    //         continue;
+    //     }        
+    //     cout << "Enter weight: ";
+    //     cin >> weight;
+    //     g.addEdge(i, to, weight);
+    //     g.addEdge(to, i, weight);
+    //     i--;
+    // }
+    g.addEdge(0, 1, 4);
+    g.addEdge(0, 7, 8);
+    g.addEdge(1, 2, 8);
+    g.addEdge(1, 7, 11);
+    g.addEdge(2, 3, 7);
+    g.addEdge(2, 8, 2);
+    g.addEdge(2, 5, 4);
+    g.addEdge(3, 4, 9);
+    g.addEdge(3, 5, 14);
+    g.addEdge(4, 5, 10);
+    g.addEdge(5, 6, 2);
+    g.addEdge(6, 7, 1);
+    g.addEdge(6, 8, 6);
+    g.addEdge(7, 8, 7);
+    g.addEdge(1, 5, 1);
     g.kruskals();
 }

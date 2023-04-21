@@ -13,7 +13,7 @@ struct edge
 
 struct vertex
 {
-    int data, predecessor, distance;
+    int data, predecessor, distance, set;
     LinkedList<edge> list;
 };
 
@@ -22,12 +22,6 @@ class Graph
 private:
     vertex *v;
     int count, unprocessed_edges, no_of_edges;
-
-    void printList(LinkedList<edge> list)
-    {
-        for (sllNode<edge> *temp = list.getHead(); temp != NULL; temp = temp->next)
-            cout << "From: " <<temp->data.from << "\tTo: " << temp->data.to << "\tWeight: " << temp->data.weight << endl;
-    }
 
 public:
     Graph(int count)
@@ -45,6 +39,7 @@ public:
             v[i].data = i;
             v[i].distance = 9999;
             v[i].predecessor = -1;
+            v[i].set = i;
             for (sllNode<edge> *temp = v[i].list.getHead(); temp != NULL; temp = temp->next)
                 temp->data.isProcessed = false;
         }
@@ -56,20 +51,6 @@ public:
         v[from].list.insert(edge(from, to, weight));
         v[to].list.insert(edge(to, from, weight));
         no_of_edges += 2;
-    }
-
-    void processComplementaryEdge(int from, int to)
-    {
-        for (sllNode<edge> *temp = v[to].list.getHead(); temp != NULL; temp = temp->next)
-        {
-            if (temp->data.to == from)
-            {
-                temp->data.isProcessed = true;
-                unprocessed_edges--;
-                return;
-            }
-        }
-        cout << "Error occured!" << endl;
     }
 
     edge findMin()
@@ -95,35 +76,7 @@ public:
         return temp->data;
     } 
 
-    int findSLLIndex(LinkedList<vertex> list[], int vert)
-    {
-        for (int i = 0; i < count; i++)
-        {
-            for (sllNode<vertex> *temp = list[i].getHead(); temp != NULL; temp = temp->next)
-            {
-                if (vert == temp->data.data)
-                    return i;
-            }
-        }
-        return -1;
-    }
-
-    void printRes()
-    {
-        cout << "Data\tDistance\tPredecessor" << endl;
-        for (int i = 0; i < count; i++)
-            cout << v[i].data << "\t\t\t" << v[i].distance << "\t\t\t" << v[i].predecessor << endl;
-    }
-    void print()
-    {
-        for (int i = 0; i < count; i++)
-        {
-            cout << v[i].data << endl;
-            printList(v[i].list);
-        }
-    }
-
-    void printLol()
+    void printTest()
     {
         for (int i = 0; i < count; i++)
         {
@@ -134,28 +87,29 @@ public:
         }
     }
 
+    void mergeSets(int set1, int set2)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            if (v[i].set == set2)
+                v[i].set = set1;
+        }
+    }
+
     void kruskals(int src = 0)
     {
         initialize(src);
-        LinkedList<vertex> list[count];
-        Utilities<vertex> ut;
-        for (int i = 0; i < count; i++)
-            list[i].insert(v[i]);
         int min_cost = 0;
-        printLol();
+        printTest();
         unprocessed_edges = no_of_edges;
         while (unprocessed_edges > 0)
         {
             edge edg = findMin();
-            int index1 = findSLLIndex(list, edg.from);
-            int index2 = findSLLIndex(list, edg.to);
-            if (index1 == index2)
-                continue;
-            ut.append(list[index1], list[index2]);
-            list[index2].destroy();
+            if (v[edg.from].set == v[edg.to].set)
+                continue;  
+            mergeSets(v[edg.from].set, v[edg.to].set);
             min_cost += edg.weight;
             cout << "An edge was added between " << edg.from << " and " << edg.to <<" with weight " << edg.weight <<endl; 
-            // processComplementaryEdge(edg.from, edg.to);
         }  
         cout << "min_cost = " << min_cost << endl;        
     }   
@@ -200,6 +154,6 @@ int main()
     g.addEdge(6, 7, 1);
     g.addEdge(6, 8, 6);
     g.addEdge(7, 8, 7);
-    g.addEdge(1, 5, 1);
+    // g.addEdge(1, 5, 1);
     g.kruskals();
 }

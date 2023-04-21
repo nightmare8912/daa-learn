@@ -65,12 +65,23 @@ public:
         return true;
     }
 
-    void destroy()
+    int getMstCost()
     {
-        qList.destroy();
+        int mst_cost = 0;
+        for (int i = 1; i < qList.getCount() + 1; i++)
+            mst_cost += qList.getElementAt(i).distance;
+        return mst_cost;    
     }
 
-    ~Queue() {}
+    void printRes()
+    {
+        for (int i = 1; i < qList.getCount() + 1; i++)
+        {
+            vertex vert = qList.getElementAt(i);
+            cout << vert.data << "\t\t" << vert.distance << "\t\t" << vert.pred << endl;
+        }
+        cout << "MST_COST: " << getMstCost() << endl;
+    }
 };
 
 class Graph
@@ -115,18 +126,16 @@ public:
         }
     }
 
-    void printRes()
+    void printRes(int mst_cost)
     {
-        int mst_cost = 0;
-        cout << "Data\t\t   Distance\t\tPredecessor" << endl;
+        // int mst_cost = 0;
+        cout << "Data\t\tDistance\tPredecessor" << endl;
         for (int i = 0; i < count; i++)
         {
             cout << v[i].data << "\t\t\t" << v[i].distance << "\t\t\t" << v[i].pred << endl;
-            mst_cost += v[i].distance;
+            // mst_cost += v[i].distance;
         }
-        cout << "MST_COST: " << mst_cost << endl;
-        for (int i = 0; i < count; i++)
-            v[i].list.destroy(); 
+        cout << "MST_COST: " << mst_cost << endl; 
     }
 
     void prims(int src = 0)
@@ -139,21 +148,18 @@ public:
         while (!q.areAllProcessed())
         {   
             sllNode<vertex> *currVert = q.getMin();
-            for (sllNode<edge> *temp = currVert->data.list.getHead(); temp != NULL; temp = temp->next)
+            for (int i = 1; i < currVert->data.list.getCount() + 1; i++)
             {
-                sllNode<vertex> *adjVert = q.find(temp->data.to);
-                if (!adjVert->data.isProcessed && temp->data.weight < adjVert->data.distance)
+                sllNode<vertex> *adjVert = q.find(currVert->data.list.getElementAt(i).to);
+                if (!adjVert->data.isProcessed && currVert->data.list.getElementAt(i).weight < adjVert->data.distance)
                 {
-                    v[temp->data.to].pred = adjVert->data.pred = currVert->data.data;
-                    v[temp->data.to].distance = adjVert->data.distance = temp->data.weight;
+                    adjVert->data.pred = currVert->data.data;
+                    adjVert->data.distance = currVert->data.list.getElementAt(i).weight;
                 }
             }
         }
-        printRes();
-        q.destroy();       
+        q.printRes();       
     }
-
-    ~Graph() {}
 };
 
 int main()
@@ -173,7 +179,6 @@ int main()
     g.addEdge(6, 7, 1);
     g.addEdge(6, 8, 6);
     g.addEdge(7, 8, 7);
-    g.prims();
     // g.addEdge(1, 5, 1);
     // int from, to, weight, data;
     // int n;
@@ -197,5 +202,6 @@ int main()
     //     g.addEdge(i, to, weight);
     //     i--;
     // }
+    g.prims();
     return 0;
 }

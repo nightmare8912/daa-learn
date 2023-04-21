@@ -853,7 +853,7 @@ int main()
             // opt = getNum();
         // else
             cin >> opt;
-        cout << opt << "\t" << counter <<endl;
+        // cout << opt << "\t" << counter <<endl;
         switch (opt)
         {
         case 1:
